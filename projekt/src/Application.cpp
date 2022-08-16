@@ -128,7 +128,8 @@ void Application::createGeometryTestScene()
 	ShaderLightMapper::instance().addLight(dl);
 
 	//erst hinzufügen von dem Block
-	//Cam.setTarget();
+	//translation ist die position
+	Cam.setTarget(player->getBlockModel()->transform().translation());
 }
 
 void Application::createScene()
