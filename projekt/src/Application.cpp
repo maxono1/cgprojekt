@@ -83,6 +83,7 @@ void Application::end()
         delete *it;
     
     Models.clear();
+	delete player;
 }
 
 void Application::createGeometryTestScene()
@@ -93,13 +94,18 @@ void Application::createGeometryTestScene()
 	/// wenn man die skybox als erstes macht, dann ist einfach teil der skybox holz!!!
 	/// </summary>
 
-	pModel = new Model(ASSET_DIRECTORY "block.dae", false);
+	player = new PlayingCube(ASSET_DIRECTORY "block.dae");
+
+	Models.push_back(player->getBlockModel());
+
+	/*
+	pModel = new Model(ASSET_DIRECTORY "f.obj", false);
 	pModel->shader(new PhongShader(), true);
-	
-	m.scale(0.4f);
+
+	m.scale(1);
 	m.translation(40, 2, 0);
 	pModel->transform(m);
-	Models.push_back(pModel);
+	Models.push_back(pModel);*/
 
 	
 	pModel = new Model(ASSET_DIRECTORY "woodLVL2.dae", false);
@@ -120,6 +126,9 @@ void Application::createGeometryTestScene()
 	dl->color(Color(1, 1, 1));
 	dl->castShadows(true);
 	ShaderLightMapper::instance().addLight(dl);
+
+	//erst hinzufügen von dem Block
+	//Cam.setTarget();
 }
 
 void Application::createScene()

@@ -1,8 +1,18 @@
 #pragma once
 #include "BaseModel.h"
-class PlayingCube : public BaseModel
+#include "model.h"
+#include "PhongShader.h"
+
+class PlayingCube
 {
-	PlayingCube();
+public:
+	PlayingCube(const char* cubeFile);
 	virtual ~PlayingCube();
+	void jump();
+	Model* getBlockModel();
+
+private:
+	Model* blockModel;
+	bool jumpPressed;
 };
 
