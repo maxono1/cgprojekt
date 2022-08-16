@@ -10,6 +10,7 @@ public:
 	virtual ~PlayingCube();
 	void jump();
 	Model* getBlockModel();
+	void update(float dtime);
 
 private:
 	Model* blockModel;

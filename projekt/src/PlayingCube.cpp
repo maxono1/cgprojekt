@@ -29,3 +29,13 @@ Model* PlayingCube::getBlockModel()
 {
 	return blockModel;
 }
+
+void PlayingCube::update(float dtime)
+{
+	Matrix movement;
+	movement.translation(-dtime, 0, 0);
+
+	Matrix blockTransformCurrent = blockModel->transform();
+
+	blockModel->transform(blockTransformCurrent * movement);
+}

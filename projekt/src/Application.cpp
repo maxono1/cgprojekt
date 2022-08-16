@@ -54,7 +54,22 @@ void Application::start()
 
 void Application::update(float dtime)
 {
+	//erst hinzufügen von dem Block
+	//translation ist die position
+	
+	//player->update(dtime);
 
+	Matrix movement;
+	movement.translation(-dtime, 0, 0);
+
+	Matrix blockTransformCurrent = player->getBlockModel()->transform();
+
+	player->getBlockModel()->transform(blockTransformCurrent * movement);
+
+	Vector blockPosition = player->getBlockModel()->transform().translation();
+
+	Cam.setPosition(Vector(blockPosition.X + 5, blockPosition.Y + 3, blockPosition.Z - 15));
+	Cam.setTarget(blockPosition);
     Cam.update();
 }
 
@@ -127,9 +142,7 @@ void Application::createGeometryTestScene()
 	dl->castShadows(true);
 	ShaderLightMapper::instance().addLight(dl);
 
-	//erst hinzufügen von dem Block
-	//translation ist die position
-	Cam.setTarget(player->getBlockModel()->transform().translation());
+	
 }
 
 void Application::createScene()
