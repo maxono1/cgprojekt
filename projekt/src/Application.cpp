@@ -63,7 +63,7 @@ void Application::update(float dtime)
 	//wir brauchen das level als Model damit collision detection gemacht werden kann?
 
 	Matrix movement;
-	movement.translation(dtime, 0, 0);
+	movement.translation(0, -dtime, 0);
 
 	Matrix blockTransformCurrent = player->getBlockModel()->transform();
 	Vector blockPositionBefore = blockTransformCurrent.translation();
@@ -71,6 +71,12 @@ void Application::update(float dtime)
 	player->getBlockModel()->transform(blockTransformCurrent * movement);
 
 	Vector blockPositionAfter = player->getBlockModel()->transform().translation();
+
+	//durchiterieren durch die bounding boxes
+	for (int i{ 0 }; i < aabbList.size(); i++) {
+		std::cout << AABB::checkCollision(player->getBlockModel()->boundingBox(), aabbList[i]);
+	}
+
 	/*//make camera follow the block
 	Cam.setPosition(Vector(blockPositionAfter.X + 5, blockPositionAfter.Y + 3, blockPositionAfter.Z - 15));
 	Cam.setTarget(blockPositionAfter);*/

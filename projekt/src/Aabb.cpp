@@ -107,3 +107,11 @@ const AABB& AABB::unitBox()
     return UnitBox;
 }
 
+bool AABB::checkCollision(const AABB& a, const AABB& b)
+{
+	
+	return (a.Min.X <= b.Max.X && a.Max.X >= b.Min.X) &&
+		(a.Min.Y <= b.Max.Y && a.Max.Y >= b.Min.Y) &&
+		(a.Min.Z <= b.Max.Z && a.Max.Z >= b.Min.Z);
+}
+
