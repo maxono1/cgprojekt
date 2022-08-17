@@ -6,10 +6,10 @@ PlayingCube::PlayingCube(const char* cubeFile)
 	Model* model = new Model(cubeFile, false);
 	model->shader(new PhongShader(), true);
 
-	Matrix m = Matrix();
-	m.scale(0.4f);
-	m.translation(40, 2, 0);
-	model->transform(m);
+	Matrix translation, scale;
+	scale.scale(0.4f);
+	translation.translation(-2, 2, 0);
+	model->transform(translation * scale);
 
 	blockModel = model;
 }

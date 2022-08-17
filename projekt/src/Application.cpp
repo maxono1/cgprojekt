@@ -59,17 +59,21 @@ void Application::update(float dtime)
 	
 	//player->update(dtime);
 
+
+	//wir brauchen das level als Model damit collision detection gemacht werden kann?
+
 	Matrix movement;
-	movement.translation(-dtime, 0, 0);
+	movement.translation(dtime, 0, 0);
 
 	Matrix blockTransformCurrent = player->getBlockModel()->transform();
+	Vector blockPositionBefore = blockTransformCurrent.translation();
 
 	player->getBlockModel()->transform(blockTransformCurrent * movement);
 
-	Vector blockPosition = player->getBlockModel()->transform().translation();
-
-	Cam.setPosition(Vector(blockPosition.X + 5, blockPosition.Y + 3, blockPosition.Z - 15));
-	Cam.setTarget(blockPosition);
+	Vector blockPositionAfter = player->getBlockModel()->transform().translation();
+	/*//make camera follow the block
+	Cam.setPosition(Vector(blockPositionAfter.X + 5, blockPositionAfter.Y + 3, blockPositionAfter.Z - 15));
+	Cam.setTarget(blockPositionAfter);*/
     Cam.update();
 }
 
@@ -122,12 +126,38 @@ void Application::createGeometryTestScene()
 	pModel->transform(m);
 	Models.push_back(pModel);*/
 
-	
+	/*
 	pModel = new Model(ASSET_DIRECTORY "woodLVL2.dae", false);
 	pModel->shader(new PhongShader(), true);
 	m.translation(0, 0, 0);
 	m.scale(3);
 	pModel->transform(m);
+	Models.push_back(pModel);*/
+
+	//wooden box length in units : 6.0f genau
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	//jedes mal wird ne neue matrix erstellt!!!!"
+	Matrix translation, rotation, scale;
+	translation.translation(0, 0,0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	scale.scale(1);
+	pModel->transform(rotation * scale * translation);
+	Models.push_back(pModel);
+	
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(0, 0, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	Models.push_back(pModel);
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(6.0f, 0, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
 	Models.push_back(pModel);
 
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
