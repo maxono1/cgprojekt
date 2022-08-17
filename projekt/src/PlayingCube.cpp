@@ -8,7 +8,7 @@ PlayingCube::PlayingCube(const char* cubeFile)
 
 	Matrix translation, scale;
 	scale.scale(0.4f);
-	translation.translation(-2, 2, 0);
+	translation.translation(-8, 2, 0);
 	model->transform(translation * scale);
 
 	blockModel = model;

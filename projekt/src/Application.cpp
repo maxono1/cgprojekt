@@ -135,20 +135,21 @@ void Application::createGeometryTestScene()
 	Models.push_back(pModel);*/
 
 	//wooden box length in units : 6.0f genau
+	//wooden box height in units : 0.4f 
+
+	Matrix translation, rotation, scale;
 
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
 	pModel->shader(new PhongShader(), true);
-	//jedes mal wird ne neue matrix erstellt!!!!"
-	Matrix translation, rotation, scale;
-	translation.translation(0, 0,0);
-	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	translation.translation(-6.0f, 0, 0);
 	scale.scale(1);
-	pModel->transform(rotation * scale * translation);
+	pModel->transform(translation * scale);
 	Models.push_back(pModel);
+	
 	
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
 	pModel->shader(new PhongShader(), true);
-	translation.translation(0, 0, 0);
+	translation.translation(0.0f, 0, 0);
 	scale.scale(1);
 	pModel->transform(translation * scale);
 	Models.push_back(pModel);
@@ -160,10 +161,59 @@ void Application::createGeometryTestScene()
 	pModel->transform(translation * scale);
 	Models.push_back(pModel);
 
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(12.0f, 0, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	Models.push_back(pModel);
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(12.0f, 0.4f, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	Models.push_back(pModel);
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	//jedes mal wird ne neue matrix erstellt!!!!"
+	translation.translation(12.0f, 0, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	scale.scale(1);
+	pModel->transform(translation * rotation * scale );
+	Models.push_back(pModel);
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	//jedes mal wird ne neue matrix erstellt!!!!"
+	translation.translation(18.0f, -6.0f, 0);
+	//rotation.rotationZ(AI_DEG_TO_RAD(90));
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	Models.push_back(pModel);
+
+	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel->shader(new PhongShader(), true);
+	//jedes mal wird ne neue matrix erstellt!!!!"
+	translation.translation(24.0f, -6.0f, 0);
+	//rotation.rotationZ(AI_DEG_TO_RAD(90));
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	Models.push_back(pModel);
+
+	aabbList.reserve(sizeof(AABB) * 20);
+	for (ModelList::iterator it = Models.begin(); it != Models.end(); ++it)
+	{
+		aabbList.push_back((*it)->boundingBox());
+	}
+
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);
 	pModel->shadowCaster(false);
 	Models.push_back(pModel);
+
+
 
 	// directional lights
 	DirectionalLight* dl = new DirectionalLight();
