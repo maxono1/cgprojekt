@@ -101,14 +101,15 @@ void Application::update(float dtime)
 		 //Vector translationOfModel = (*it)->transform().translation();
 		 AABB bbOfModel = (*it)->boundingBox().transform((*it)->transform());
 		 std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
-		 std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
-			 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
+		 //std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
+		//	 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
+		 dragonCube->transform((*it)->transform());
 		 //jz noch die beiden printen und manuell vergleichen
 	 }
 
 	 
-	std::cout << "bounding box pos: " << bbOfPlayer.Max.X << ", " << bbOfPlayer.Max.Y << " , " << bbOfPlayer.Max.Z << " min"
-		<< bbOfPlayer.Min.X << ", " << bbOfPlayer.Min.Y << ", " << bbOfPlayer.Min.Z << "\n";
+	//std::cout << "bounding box pos: " << bbOfPlayer.Max.X << ", " << bbOfPlayer.Max.Y << " , " << bbOfPlayer.Max.Z << " min"
+	//	<< bbOfPlayer.Min.X << ", " << bbOfPlayer.Min.Y << ", " << bbOfPlayer.Min.Z << "\n";
 	/*
 	AABB bbOfPLayerTest = player->getBlockModel()->boundingBox();
 	std::cout << "bounding box pos: " << bbOfPLayerTest.Max.X << ", " << bbOfPLayerTest.Max.Y << " , " << bbOfPLayerTest.Max.Z << " min"
@@ -177,24 +178,18 @@ void Application::createGeometryTestScene()
 
 	//wooden box length in units : 6.0f genau
 	//wooden box height in units : 0.4f 
-	ConstantShader* pConstShader;
-
-	cubeTest = new LineBoxModel(5, 5, 5);
-
-	pConstShader = new ConstantShader();
-	pConstShader->color(Color(0, 1, 0));
-	cubeTest->shader(pConstShader, true);
-	Models.push_back(cubeTest);
+	
 	
 
 	Matrix translation, rotation, scale;
 	
 	pModel = new Model(ASSET_DIRECTORY "dragon.dae", false);
 	pModel->shader(new PhongShader(), true);
-	translation.translation(-8.0f, 0, 0);
+	translation.translation(-8.0f, -4, 0);
 	scale.scale(1);
 	pModel->transform(translation * scale);
 	Models.push_back(pModel);
+
 
 	AABB bbOfModel = pModel->boundingBox();// .transform(pModel->transform());
 	//std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
@@ -266,11 +261,21 @@ void Application::createGeometryTestScene()
 	player = new PlayingCube(ASSET_DIRECTORY "block.dae");
 	Models.push_back(player->getBlockModel());
 
+	ConstantShader* pConstShader;
+	cubeTest = new LineBoxModel(player->getBlockModel()->boundingBox().Max, player->getBlockModel()->boundingBox().Min);
+	pConstShader = new ConstantShader();
+	pConstShader->color(Color(0, 1, 0));
+	cubeTest->shader(pConstShader, true);
+	Models.push_back(cubeTest);
+
+	dragonCube = new LineBoxModel(pModel->boundingBox().Max, pModel->boundingBox().Min);
+	dragonCube->shader(pConstShader, true);
+	Models.push_back(dragonCube);
+
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);
 	pModel->shadowCaster(false);
 	Models.push_back(pModel);
-
 
 
 	// directional lights

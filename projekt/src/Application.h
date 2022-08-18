@@ -43,6 +43,7 @@ protected:
 	BaseModel* pModel;
     PlayingCube* player;
     LineBoxModel* cubeTest;
+    LineBoxModel* dragonCube;
 	ShadowMapGenerator ShadowGenerator;
 };
 

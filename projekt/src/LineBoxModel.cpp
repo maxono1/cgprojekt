@@ -10,10 +10,10 @@
 
 LineBoxModel::LineBoxModel(float Width, float Height, float Depth)
 {
-	VB.begin(); //alles clearen und blank slate
-	// TODO: Add your code (Exercise 1)   
-
 	float start = -Height / 2;
+	//initVB(start, Width, Height, Depth);
+	
+	VB.begin();
 
 	//GROUND LEVEL
 	VB.addVertex(start, start, start);
@@ -56,8 +56,16 @@ LineBoxModel::LineBoxModel(float Width, float Height, float Depth)
 	VB.addVertex(start, Height + start, start);
 	//VB.addVertex(-Width, Height, Depth);
 
-
 	VB.end();
+}
+
+LineBoxModel::LineBoxModel(Vector max, Vector min)
+{
+	float width = max.X - min.X;
+	float height = max.Y - min.Y;
+	float depth = max.Z - min.Z;
+	float start = -height / 2;
+	initVB(start, width, height, depth);
 }
 
 void LineBoxModel::draw(const BaseCamera& Cam)
@@ -70,4 +78,51 @@ void LineBoxModel::draw(const BaseCamera& Cam)
 	glDrawArrays(GL_LINES, 0, VB.vertexCount());
 
 	VB.deactivate();
+}
+
+void LineBoxModel::initVB(float start, float Width, float Height, float Depth)
+{
+	VB.begin();
+
+	//GROUND LEVEL
+	VB.addVertex(start, 0, start);
+	VB.addVertex(Width + start, 0, start);
+
+	VB.addVertex(Width + start, 0, start);
+	VB.addVertex(Width + start, 0, Depth + start);
+
+	VB.addVertex(Width + start, 0, Depth + start);
+	VB.addVertex(start, 0, Depth + start);
+
+	VB.addVertex(start, 0, Depth + start);
+	VB.addVertex(start, 0, start);
+
+
+	//Vertical lines
+	VB.addVertex(start, 0, start);
+	VB.addVertex(start, 0, start);
+
+	VB.addVertex(Width + start, 0, start);
+	VB.addVertex(Width + start, Height, start);
+
+	VB.addVertex(Width + start, 0, Depth + start);
+	VB.addVertex(Width + start, Height, Depth + start);
+
+	VB.addVertex(start, 0, Depth + start);
+	VB.addVertex(start, Height, Depth + start);
+
+	//Top layer
+	VB.addVertex(start, Height, start);
+	VB.addVertex(Width + start, Height, start);
+
+	VB.addVertex(Width + start, Height, start);
+	VB.addVertex(Width + start, Height, Depth + start);
+
+	VB.addVertex(Width + start, Height, Depth + start);
+	VB.addVertex(start, Height, Depth + start);
+
+	VB.addVertex(start, Height, Depth + start);
+	VB.addVertex(start, Height, start);
+
+	VB.end();
 }

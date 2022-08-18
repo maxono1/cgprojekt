@@ -17,11 +17,13 @@ class LineBoxModel : public BaseModel
 {
 public:
     LineBoxModel(float Width = 1, float Height = 1, float Depth = 1);
+    LineBoxModel(Vector max, Vector min);
     virtual ~LineBoxModel() {}
     virtual void draw(const BaseCamera& Cam);
 protected:
     VertexBuffer VB;
-
+private:
+    void initVB(float start, float width, float height, float depth);
 };
 
 #endif /* LineCubeModel_hpp */
