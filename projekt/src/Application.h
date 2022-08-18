@@ -36,6 +36,7 @@ protected:
 	void createShadowTestScene();
     Camera Cam;
     ModelList Models;
+    ModelList lvlList;
     std::vector<AABB> aabbList;
     GLFWwindow* pWindow;
 	BaseModel* pModel;

@@ -72,10 +72,46 @@ void Application::update(float dtime)
 
 	Vector blockPositionAfter = player->getBlockModel()->transform().translation();
 
+
 	//durchiterieren durch die bounding boxes
+	/*
 	for (int i{ 0 }; i < aabbList.size(); i++) {
 		std::cout << AABB::checkCollision(player->getBlockModel()->boundingBox(), aabbList[i]);
-	}
+	}*/
+
+	//die bounding box kann man transformen!!!!
+	Matrix translationBB;
+	translationBB.translation(blockPositionAfter);
+	translationBB.printMatrix();
+
+	/*
+	 
+	 for (int i{ 0 }; i < aabbList.size(); i++) {
+
+		 Vector lvlObjectPosition = aabbList[i].transform().translation();
+
+		 std::cout << AABB::checkCollision(bbOfPlayer, aabbList[i]);
+	 }*/
+
+	//vlt hier wieder alles probieren, nicht nur translation
+	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(translationBB);
+	 for (ModelList::iterator it = lvlList.begin(); it != lvlList.end(); ++it)
+	 {
+		 Vector translationOfModel = (*it)->transform().translation();
+		 AABB bbOfModel = (*it)->boundingBox().transform(Matrix().translation(translationOfModel));
+		 std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
+		 std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
+			 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
+		 //jz noch die beiden printen und manuell vergleichen
+	 }
+
+	 
+	std::cout << "bounding box pos: " << bbOfPlayer.Max.X << ", " << bbOfPlayer.Max.Y << " , " << bbOfPlayer.Max.Z << " min"
+		<< bbOfPlayer.Min.X << ", " << bbOfPlayer.Min.Y << ", " << bbOfPlayer.Min.Z << "\n";
+	/*
+	AABB bbOfPLayerTest = player->getBlockModel()->boundingBox();
+	std::cout << "bounding box pos: " << bbOfPLayerTest.Max.X << ", " << bbOfPLayerTest.Max.Y << " , " << bbOfPLayerTest.Max.Z << " min"
+		<< bbOfPLayerTest.Min.X << ", " << bbOfPLayerTest.Min.Y << ", " << bbOfPLayerTest.Min.Z << "\n";*/
 
 	/*//make camera follow the block
 	Cam.setPosition(Vector(blockPositionAfter.X + 5, blockPositionAfter.Y + 3, blockPositionAfter.Z - 15));
@@ -119,9 +155,7 @@ void Application::createGeometryTestScene()
 	/// wenn man die skybox als erstes macht, dann ist einfach teil der skybox holz!!!
 	/// </summary>
 
-	player = new PlayingCube(ASSET_DIRECTORY "block.dae");
-
-	Models.push_back(player->getBlockModel());
+	
 
 	/*
 	pModel = new Model(ASSET_DIRECTORY "f.obj", false);
@@ -144,7 +178,7 @@ void Application::createGeometryTestScene()
 	//wooden box height in units : 0.4f 
 
 	Matrix translation, rotation, scale;
-
+	
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
 	pModel->shader(new PhongShader(), true);
 	translation.translation(-6.0f, 0, 0);
@@ -152,7 +186,7 @@ void Application::createGeometryTestScene()
 	pModel->transform(translation * scale);
 	Models.push_back(pModel);
 	
-	
+	/*
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
 	pModel->shader(new PhongShader(), true);
 	translation.translation(0.0f, 0, 0);
@@ -206,13 +240,16 @@ void Application::createGeometryTestScene()
 	//rotation.rotationZ(AI_DEG_TO_RAD(90));
 	scale.scale(1);
 	pModel->transform(translation * scale);
-	Models.push_back(pModel);
+	Models.push_back(pModel);*/
 
-	aabbList.reserve(sizeof(AABB) * 20);
+	//aabbList.reserve(sizeof(AABB) * 20);
 	for (ModelList::iterator it = Models.begin(); it != Models.end(); ++it)
 	{
-		aabbList.push_back((*it)->boundingBox());
+		lvlList.push_back((*it));
 	}
+
+	player = new PlayingCube(ASSET_DIRECTORY "block.dae");
+	Models.push_back(player->getBlockModel());
 
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);

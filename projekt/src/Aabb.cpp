@@ -30,14 +30,23 @@ Vector AABB::size() const
 
 AABB AABB::transform(const Matrix& m) const
 {
+	//acht vektoren
 	Vector c[8];
+	//ka was diese methode macht
 	corners(c);
+	//die gesamte matrix mal das?
 	for (int i = 0; i < 8; ++i)
 		c[i] = m * c[i];
+
 	AABB r;
 	r.fromPoints(c, 8);
 	return r;
 }
+/*
+AABB AABB::moveBoundingBox(const Vector& translation)
+{
+	Vec
+}*/
 
 AABB AABB::merge(const AABB& a, const AABB& b) const
 {
@@ -82,9 +91,12 @@ void AABB::corners(Vector c[8]) const
 
 void AABB::fromPoints(const Vector* Points, unsigned int PointCount)
 {
+	//max wird mit einer sehr kleinen float value
 	Max = Vector(-1e20f, -1e20f, -1e20f);
+	//min wird mit einer sehr hohen float value intitalisiert
 	Min = Vector(1e20f, 1e20f, 1e20f);
 
+	//es wird geprüft ob die werte größer bzw kleiner sind und dann gesettet
 	for (unsigned int i = 0; i < PointCount; ++i)
 	{
 		if (Min.X > Points[i].X) Min.X = Points[i].X;

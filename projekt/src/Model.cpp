@@ -73,12 +73,12 @@ void Model::loadMeshes(const aiScene* pScene, bool FitSize)
 
 	//bounding box koordinaten, wir legen sie hier an
 
-	AABB boundingBox = AABB();
+	BoundingBox = AABB();
 	//calcBoundingBox(pScene, boundingBox);
 
 	//float scaling = 0.25f;
 	float scaling = 1.00f;
-	float maxAusdehnungReal = calcBoundingBox(pScene, boundingBox);
+	float maxAusdehnungReal = calcBoundingBox(pScene, BoundingBox);
 	float gewolltAusdehnung = 4.0f;
 	if (FitSize) {
 		scaling = maxAusdehnungReal / gewolltAusdehnung;
@@ -418,6 +418,11 @@ void Model::draw(const BaseCamera& Cam)
 
 		DrawNodes.pop_front();
 	}
+}
+
+void Model::setBoundingBox(AABB box)
+{
+	this->BoundingBox = box;
 }
 
 Matrix Model::convert(const aiMatrix4x4& m)

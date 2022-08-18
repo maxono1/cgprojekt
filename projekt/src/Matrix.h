@@ -75,6 +75,8 @@ public:
     Vector transformVec4x4( const Vector& v) const;
     Vector transformVec3x3( const Vector& v) const;
     float determinat();
+
+    void printMatrix();
 };
 
 
