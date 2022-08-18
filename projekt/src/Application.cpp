@@ -183,7 +183,7 @@ void Application::createGeometryTestScene()
 
 	Matrix translation, rotation, scale;
 	
-	pModel = new Model(ASSET_DIRECTORY "dragon.dae", false);
+	pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
 	pModel->shader(new PhongShader(), true);
 	translation.translation(-8.0f, -4, 0);
 	scale.scale(1);
