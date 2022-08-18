@@ -313,6 +313,9 @@ float Model::calcBoundingBox(const aiScene* pScene, AABB& Box) {
 	Vector min = Vector(minX, minY, minZ);
 	Vector max = Vector(maxX, maxY, maxZ);
 
+	std::cout << minX << ", " << minY << ", " << minZ << '\n';
+	std::cout << maxX << ", " << maxY << ", " << maxZ << '\n';
+
 	Box.Min = min;
 	Box.Max = max;
 

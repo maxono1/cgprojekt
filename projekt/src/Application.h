@@ -19,6 +19,7 @@
 #include "basemodel.h"
 #include "ShadowMapGenerator.h"
 #include "PlayingCube.h"
+#include "LineBoxModel.h"
 
 class Application
 {
@@ -41,6 +42,7 @@ protected:
     GLFWwindow* pWindow;
 	BaseModel* pModel;
     PlayingCube* player;
+    LineBoxModel* cubeTest;
 	ShadowMapGenerator ShadowGenerator;
 };
 

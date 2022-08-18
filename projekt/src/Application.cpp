@@ -69,7 +69,7 @@ void Application::update(float dtime)
 	Vector blockPositionBefore = blockTransformCurrent.translation();
 
 	player->getBlockModel()->transform(blockTransformCurrent * movement);
-
+	cubeTest->transform(blockTransformCurrent * movement);
 	Vector blockPositionAfter = player->getBlockModel()->transform().translation();
 
 
@@ -82,7 +82,7 @@ void Application::update(float dtime)
 	//die bounding box kann man transformen!!!!
 	Matrix translationBB;
 	translationBB.translation(blockPositionAfter);
-	translationBB.printMatrix();
+	//translationBB.printMatrix();
 
 	/*
 	 
@@ -94,11 +94,12 @@ void Application::update(float dtime)
 	 }*/
 
 	//vlt hier wieder alles probieren, nicht nur translation
-	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(translationBB);
+	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(player->getBlockModel()->transform());
+	
 	 for (ModelList::iterator it = lvlList.begin(); it != lvlList.end(); ++it)
 	 {
-		 Vector translationOfModel = (*it)->transform().translation();
-		 AABB bbOfModel = (*it)->boundingBox().transform(Matrix().translation(translationOfModel));
+		 //Vector translationOfModel = (*it)->transform().translation();
+		 AABB bbOfModel = (*it)->boundingBox().transform((*it)->transform());
 		 std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
 		 std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
 			 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
@@ -176,15 +177,29 @@ void Application::createGeometryTestScene()
 
 	//wooden box length in units : 6.0f genau
 	//wooden box height in units : 0.4f 
+	ConstantShader* pConstShader;
+
+	cubeTest = new LineBoxModel(5, 5, 5);
+
+	pConstShader = new ConstantShader();
+	pConstShader->color(Color(0, 1, 0));
+	cubeTest->shader(pConstShader, true);
+	Models.push_back(cubeTest);
+	
 
 	Matrix translation, rotation, scale;
 	
-	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
+	pModel = new Model(ASSET_DIRECTORY "dragon.dae", false);
 	pModel->shader(new PhongShader(), true);
-	translation.translation(-6.0f, 0, 0);
+	translation.translation(-8.0f, 0, 0);
 	scale.scale(1);
 	pModel->transform(translation * scale);
 	Models.push_back(pModel);
+
+	AABB bbOfModel = pModel->boundingBox();// .transform(pModel->transform());
+	//std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
+	std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
+		<< bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
 	
 	/*
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
