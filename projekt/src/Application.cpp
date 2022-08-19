@@ -258,7 +258,7 @@ void Application::createGeometryTestScene()
 		lvlList.push_back((*it));
 	}
 
-	player = new PlayingCube(ASSET_DIRECTORY "block.dae");
+	player = new PlayingCube(ASSET_DIRECTORY "blockPlayer.obj");
 	Models.push_back(player->getBlockModel());
 
 	ConstantShader* pConstShader;
