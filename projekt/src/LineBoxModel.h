@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "basemodel.h"
 #include "vertexbuffer.h"
+#include "IndexBuffer.h"
 
 class LineBoxModel : public BaseModel
 {
@@ -22,6 +23,7 @@ public:
     virtual void draw(const BaseCamera& Cam);
 protected:
     VertexBuffer VB;
+    IndexBuffer IB;
 private:
     void initVB(float start, float width, float height, float depth);
 };

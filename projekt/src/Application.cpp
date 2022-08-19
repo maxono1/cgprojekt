@@ -62,15 +62,16 @@ void Application::update(float dtime)
 
 	//wir brauchen das level als Model damit collision detection gemacht werden kann?
 
-	Matrix movement;
-	movement.translation(0, -dtime, 0);
+	Matrix movementDown, movementSide;
+	movementDown.translation(0, -dtime, 0);
+	movementSide.translation(dtime / 2, 0, 0);
 
 	Matrix blockTransformCurrent = player->getBlockModel()->transform();
-	Vector blockPositionBefore = blockTransformCurrent.translation();
+	//Vector blockPositionBefore = blockTransformCurrent.translation();
 
-	player->getBlockModel()->transform(blockTransformCurrent * movement);
-	cubeTest->transform(blockTransformCurrent * movement);
-	Vector blockPositionAfter = player->getBlockModel()->transform().translation();
+	player->getBlockModel()->transform(blockTransformCurrent * movementDown * movementSide);
+	cubeTest->transform(player->getBlockModel()->transform());
+	//Vector blockPositionAfter = player->getBlockModel()->transform().translation();
 
 
 	//durchiterieren durch die bounding boxes
@@ -80,8 +81,8 @@ void Application::update(float dtime)
 	}*/
 
 	//die bounding box kann man transformen!!!!
-	Matrix translationBB;
-	translationBB.translation(blockPositionAfter);
+	//Matrix translationBB;
+	//translationBB.translation(blockPositionAfter);
 	//translationBB.printMatrix();
 
 	/*
@@ -98,12 +99,22 @@ void Application::update(float dtime)
 	
 	 for (ModelList::iterator it = lvlList.begin(); it != lvlList.end(); ++it)
 	 {
+		 dragonCube->transform((*it)->transform());
 		 //Vector translationOfModel = (*it)->transform().translation();
 		 AABB bbOfModel = (*it)->boundingBox().transform((*it)->transform());
-		 std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
+		 bool collision = AABB::checkCollision(bbOfPlayer, bbOfModel);
+		 //std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
+		 
+		 if (collision) {
+			 Matrix currentWrongTransform = player->getBlockModel()->transform();
+			 //copy constructor!
+			 Matrix reverseMovement = Matrix(movementDown);
+			 reverseMovement.invert();
+			 player->getBlockModel()->transform(currentWrongTransform * reverseMovement);
+		 }
+
 		 //std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
 		//	 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
-		 dragonCube->transform((*it)->transform());
 		 //jz noch die beiden printen und manuell vergleichen
 	 }
 
