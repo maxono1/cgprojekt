@@ -103,7 +103,8 @@ void Application::update(float dtime)
 		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
 		if (collision)
 		{
-			player->getBlockModel()->transform(blockTransformBeforeMovement);
+			//player->getBlockModel()->transform(blockTransformBeforeMovement);
+			player->respawn();
 		}
 	}
 	//update the hitbox visual!

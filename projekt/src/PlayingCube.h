@@ -11,9 +11,11 @@ public:
 	void jump();
 	Model* getBlockModel();
 	void update(float dtime);
+	void respawn();
 
 private:
 	Model* blockModel;
 	bool jumpPressed;
+	Matrix startPosition;
 };
 

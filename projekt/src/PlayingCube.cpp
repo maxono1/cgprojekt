@@ -9,8 +9,9 @@ PlayingCube::PlayingCube(const char* cubeFile)
 	Matrix translation, scale;
 	scale.scale(0.4f);
 	translation.translation(-8, 2, 0);
-	model->transform(translation * scale);
-
+	startPosition = translation * scale;
+	model->transform(startPosition);
+	
 	blockModel = model;
 }
 
@@ -30,6 +31,7 @@ Model* PlayingCube::getBlockModel()
 	return blockModel;
 }
 
+//wird momentan nicht aufgerufen
 void PlayingCube::update(float dtime)
 {
 	Matrix movement;
@@ -38,4 +40,9 @@ void PlayingCube::update(float dtime)
 	Matrix blockTransformCurrent = blockModel->transform();
 
 	blockModel->transform(blockTransformCurrent * movement);
+}
+
+void PlayingCube::respawn()
+{
+	blockModel->transform(startPosition);
 }
