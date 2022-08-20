@@ -62,14 +62,23 @@ void Application::update(float dtime)
 
 	//wir brauchen das level als Model damit collision detection gemacht werden kann?
 
-	Matrix movementDown;
-	movementDown.translation(0, -dtime*2, 0);
+/*Matrix counterRotation;
+	counterRotation.identity();
 	
+	if (player->getAngleInRadians() != 0) {
+		counterRotation.rotationZ(player->getAngleInRadians());
+		counterRotation.invert();
+	}*/
+	Matrix resetRotation;
+	resetRotation.rotationZ(0);
+
+	Matrix movementDown;
+	movementDown.translation(0, -dtime*2, 0); 
 
 	Matrix blockTransformBeforeMovement = player->getBlockModel()->transform();
 
 	//erst downward movement, aka ground collision
-	player->getBlockModel()->transform(blockTransformBeforeMovement * movementDown); //* movementSide);
+	player->getBlockModel()->transform(resetRotation*blockTransformBeforeMovement * movementDown ); //* movementSide);
 	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(player->getBlockModel()->transform());
 
 	for (int i{ 0 }; i < lvlObjects.size(); i++) 
@@ -87,7 +96,7 @@ void Application::update(float dtime)
 			player->getBlockModel()->transform(blockTransformBeforeMovement);
 		}
 	}
-
+	
 	//sideways collision:
 	Matrix movementSide;
 	movementSide.translation(dtime, 0, 0);
@@ -107,7 +116,22 @@ void Application::update(float dtime)
 			player->respawn();
 		}
 	}
+	//rotation
+	/*
+	Matrix rotationTest;
+	rotationTest.rotationZ(AI_DEG_TO_RAD(-1));
+	blockTransformBeforeMovement = player->getBlockModel()->transform();
+	player->getBlockModel()->transform(rotationTest* blockTransformBeforeMovement  );*/
 	//update the hitbox visual!
+	
+	
+	player->setAngleInRadians(player->getAngleInRadians() - dtime*0.01f);
+	std::cout << player->getAngleInRadians() << "\n";
+	Matrix rotationZfinal;
+	rotationZfinal.rotationZ(-0.05f);
+
+	//player->getBlockModel()->transform(player->getBlockModel()->transform() * rotationZfinal);
+
 	playerHitboxVisual->transform(player->getBlockModel()->transform());
 
 	//durchiterieren durch die bounding boxes

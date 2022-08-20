@@ -1,4 +1,5 @@
 #include "PlayingCube.h"
+# define M_PI 3.14159265358979323846f
 
 PlayingCube::PlayingCube(const char* cubeFile)
 {
@@ -6,9 +7,12 @@ PlayingCube::PlayingCube(const char* cubeFile)
 	Model* model = new Model(cubeFile, false);
 	model->shader(new PhongShader(), true);
 
-	Matrix translation, scale;
+	this->setAngleInRadians(0);
+
+	Matrix translation, scale, rotationZTest;
 	scale.scale(0.4f);
 	translation.translation(-8, 2, 0);
+	//rotationZTest.rotationZ(AI_DEG_TO_RAD(-45));
 	startPosition = translation * scale;
 	model->transform(startPosition);
 	
@@ -45,4 +49,17 @@ void PlayingCube::update(float dtime)
 void PlayingCube::respawn()
 {
 	blockModel->transform(startPosition);
+}
+
+void PlayingCube::setAngleInRadians(float angle)
+{
+	if (angle < -(0.05f)) {
+		this->currentAngleInRadians = 0;
+	}
+	this->currentAngleInRadians = angle;
+
+}
+float PlayingCube::getAngleInRadians()
+{
+	return this->currentAngleInRadians;
 }

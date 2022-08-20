@@ -12,10 +12,13 @@ public:
 	Model* getBlockModel();
 	void update(float dtime);
 	void respawn();
+	void setAngleInRadians(float angle);
+	float getAngleInRadians();
 
 private:
 	Model* blockModel;
 	bool jumpPressed;
 	Matrix startPosition;
+	float currentAngleInRadians;
 };
 
