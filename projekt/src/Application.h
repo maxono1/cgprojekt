@@ -38,11 +38,17 @@ protected:
     Camera Cam;
     ModelList Models;
     ModelList lvlList;
-    std::vector<AABB> aabbList;
+    //std::vector<AABB> aabbList;
+    std::vector<BaseModel*> obstacles; //everything that kills you no matter how you touch it
+    std::vector<LineBoxModel*> obstacleHitboxVisuals;
+
+    std::vector<BaseModel*> lvlObjects; //only die when hit from the side
+    std::vector<LineBoxModel*> lvlHitboxVisuals;
+
     GLFWwindow* pWindow;
 	BaseModel* pModel;
     PlayingCube* player;
-    LineBoxModel* cubeTest;
+    LineBoxModel* playerHitboxVisual;
     LineBoxModel* dragonCube;
 	ShadowMapGenerator ShadowGenerator;
 };

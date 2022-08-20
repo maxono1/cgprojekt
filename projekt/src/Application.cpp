@@ -62,28 +62,58 @@ void Application::update(float dtime)
 
 	//wir brauchen das level als Model damit collision detection gemacht werden kann?
 
-	Matrix movementDown, movementSide;
-	movementDown.translation(0, -dtime, 0);
-	movementSide.translation(dtime / 2, 0, 0);
+	Matrix movementDown;
+	movementDown.translation(0, -dtime*2, 0);
+	
 
-	Matrix blockTransformCurrent = player->getBlockModel()->transform();
-	//Vector blockPositionBefore = blockTransformCurrent.translation();
+	Matrix blockTransformBeforeMovement = player->getBlockModel()->transform();
 
-	player->getBlockModel()->transform(blockTransformCurrent * movementDown * movementSide);
-	cubeTest->transform(player->getBlockModel()->transform());
-	//Vector blockPositionAfter = player->getBlockModel()->transform().translation();
+	//erst downward movement, aka ground collision
+	player->getBlockModel()->transform(blockTransformBeforeMovement * movementDown); //* movementSide);
+	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(player->getBlockModel()->transform());
 
+	for (int i{ 0 }; i < lvlObjects.size(); i++) 
+	{
+		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+		if (collision) {
+			/*
+			Matrix currentWrongTransform = player->getBlockModel()->transform();
+			//copy constructor!
+			
+			Matrix moveUp = Matrix(movementDown);
+			moveUp.invert();
+			player->getBlockModel()->transform(currentWrongTransform * moveUp);*/
+			player->getBlockModel()->transform(blockTransformBeforeMovement);
+		}
+	}
+
+	//sideways collision:
+	Matrix movementSide;
+	movementSide.translation(dtime, 0, 0);
+	//update the movement, the down movement is already handled
+	blockTransformBeforeMovement = player->getBlockModel()->transform();
+	player->getBlockModel()->transform(blockTransformBeforeMovement * movementSide);
+	//update bounding box
+	bbOfPlayer = player->getBlockModel()->boundingBox().transform(player->getBlockModel()->transform());
+
+	for (int i{ 0 }; i < lvlObjects.size(); i++)
+	{
+		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+		if (collision)
+		{
+			player->getBlockModel()->transform(blockTransformBeforeMovement);
+		}
+	}
+	//update the hitbox visual!
+	playerHitboxVisual->transform(player->getBlockModel()->transform());
 
 	//durchiterieren durch die bounding boxes
 	/*
 	for (int i{ 0 }; i < aabbList.size(); i++) {
 		std::cout << AABB::checkCollision(player->getBlockModel()->boundingBox(), aabbList[i]);
 	}*/
-
-	//die bounding box kann man transformen!!!!
-	//Matrix translationBB;
-	//translationBB.translation(blockPositionAfter);
-	//translationBB.printMatrix();
 
 	/*
 	 
@@ -94,9 +124,11 @@ void Application::update(float dtime)
 		 std::cout << AABB::checkCollision(bbOfPlayer, aabbList[i]);
 	 }*/
 
-	//vlt hier wieder alles probieren, nicht nur translation
-	AABB bbOfPlayer = player->getBlockModel()->boundingBox().transform(player->getBlockModel()->transform());
 	
+	
+
+
+	/*
 	 for (ModelList::iterator it = lvlList.begin(); it != lvlList.end(); ++it)
 	 {
 		 dragonCube->transform((*it)->transform());
@@ -116,7 +148,7 @@ void Application::update(float dtime)
 		 //std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
 		//	 << bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
 		 //jz noch die beiden printen und manuell vergleichen
-	 }
+	 }*/
 
 	 
 	//std::cout << "bounding box pos: " << bbOfPlayer.Max.X << ", " << bbOfPlayer.Max.Y << " , " << bbOfPlayer.Max.Z << " min"
@@ -162,51 +194,77 @@ void Application::end()
 
 void Application::createGeometryTestScene()
 {
-	Matrix m, n;
-
 	/// <summary>
 	/// wenn man die skybox als erstes macht, dann ist einfach teil der skybox holz!!!
 	/// </summary>
 
-	
-
-	/*
-	pModel = new Model(ASSET_DIRECTORY "f.obj", false);
-	pModel->shader(new PhongShader(), true);
-
-	m.scale(1);
-	m.translation(40, 2, 0);
-	pModel->transform(m);
-	Models.push_back(pModel);*/
-
-	/*
-	pModel = new Model(ASSET_DIRECTORY "woodLVL2.dae", false);
-	pModel->shader(new PhongShader(), true);
-	m.translation(0, 0, 0);
-	m.scale(3);
-	pModel->transform(m);
-	Models.push_back(pModel);*/
-
 	//wooden box length in units : 6.0f genau
 	//wooden box height in units : 0.4f 
 	
-	
 
 	Matrix translation, rotation, scale;
+	ConstantShader* pConstShader = new ConstantShader();
+	pConstShader->color(Color(0, 1, 0));
+
 	
 	pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
 	pModel->shader(new PhongShader(), true);
 	translation.translation(-8.0f, -4, 0);
 	scale.scale(1);
 	pModel->transform(translation * scale);
+	lvlObjects.push_back(pModel);
 	Models.push_back(pModel);
 
+	pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(-4.0f, -6, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	lvlObjects.push_back(pModel);
+	Models.push_back(pModel);
 
+	pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(1.0f, -5.5f, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	lvlObjects.push_back(pModel);
+	Models.push_back(pModel);
+
+	for (int i{ 0 }; i < lvlObjects.size(); i++) 
+	{
+		LineBoxModel* lvlHitbox = new LineBoxModel(lvlObjects[i]->boundingBox().Max, lvlObjects[i]->boundingBox().Min);
+		//das delete on destruction könnte fehler aufrufen
+		lvlHitbox->shader(pConstShader, true);
+		lvlHitbox->transform(lvlObjects[i]->transform());
+		Models.push_back(lvlHitbox);
+		lvlHitboxVisuals.push_back(lvlHitbox);
+	}
+
+
+	pModel = new Model(ASSET_DIRECTORY "tripleSpikes.obj", false);
+	pModel->shader(new PhongShader(), true);
+	translation.translation(-8.0f, 0, 0);
+	scale.scale(1);
+	pModel->transform(translation * scale);
+	obstacles.push_back(pModel);
+	Models.push_back(pModel);
+
+	for (int i{ 0 }; i < obstacles.size(); i++) 
+	{
+		LineBoxModel* obstacleHitbox = new LineBoxModel(obstacles[i]->boundingBox().Max, obstacles[i]->boundingBox().Min);
+		obstacleHitbox->shader(pConstShader, true);
+		obstacleHitbox->transform(obstacles[i]->transform());
+		Models.push_back(obstacleHitbox);
+		obstacleHitboxVisuals.push_back(obstacleHitbox);
+	}
+
+	/*
 	AABB bbOfModel = pModel->boundingBox();// .transform(pModel->transform());
 	//std::cout << AABB::checkCollision(bbOfPlayer, bbOfModel);
 	std::cout << "model box pos: " << bbOfModel.Max.X << ", " << bbOfModel.Max.Y << " , " << bbOfModel.Max.Z << " min"
 		<< bbOfModel.Min.X << ", " << bbOfModel.Min.Y << ", " << bbOfModel.Min.Z << "\n";
-	
+	*/
 	/*
 	pModel = new Model(ASSET_DIRECTORY "woodenBox.dae", false);
 	pModel->shader(new PhongShader(), true);
@@ -264,24 +322,25 @@ void Application::createGeometryTestScene()
 	Models.push_back(pModel);*/
 
 	//aabbList.reserve(sizeof(AABB) * 20);
+	/*
 	for (ModelList::iterator it = Models.begin(); it != Models.end(); ++it)
 	{
 		lvlList.push_back((*it));
-	}
+
+	}*/
 
 	player = new PlayingCube(ASSET_DIRECTORY "blockPlayer.obj");
 	Models.push_back(player->getBlockModel());
 
-	ConstantShader* pConstShader;
-	cubeTest = new LineBoxModel(player->getBlockModel()->boundingBox().Max, player->getBlockModel()->boundingBox().Min);
-	pConstShader = new ConstantShader();
-	pConstShader->color(Color(0, 1, 0));
-	cubeTest->shader(pConstShader, true);
-	Models.push_back(cubeTest);
+	
+	playerHitboxVisual = new LineBoxModel(player->getBlockModel()->boundingBox().Max, player->getBlockModel()->boundingBox().Min);
+	playerHitboxVisual->shader(pConstShader, true);
+	Models.push_back(playerHitboxVisual);
 
+	/*
 	dragonCube = new LineBoxModel(pModel->boundingBox().Max, pModel->boundingBox().Min);
 	dragonCube->shader(pConstShader, true);
-	Models.push_back(dragonCube);
+	Models.push_back(dragonCube);*/
 
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);
