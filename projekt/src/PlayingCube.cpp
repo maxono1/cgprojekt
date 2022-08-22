@@ -11,12 +11,14 @@ PlayingCube::PlayingCube(const char* cubeFile)
 
 	Matrix translation, scale, rotationZTest;
 	scale.scale(0.4f);
-	translation.translation(-8, 2, 0);
+	translation.translation(-20, 15, 0);
 	//rotationZTest.rotationZ(AI_DEG_TO_RAD(-45));
 	startPosition = translation * scale;
 	model->transform(startPosition);
 	
 	blockModel = model;
+	state = PlayerStates::falling; // start on the ground? maybe its better to start in the air, or always falling?
+	setPreviousRotation(rotationZTest.rotationZ(0));
 }
 
 PlayingCube::~PlayingCube()
@@ -49,10 +51,14 @@ void PlayingCube::update(float dtime)
 void PlayingCube::respawn()
 {
 	blockModel->transform(startPosition);
+	state = PlayerStates::falling;
+	Matrix resetRotation;
+	setPreviousRotation(resetRotation.rotationZ(0)); //könnte auch identity nehmen?
 }
 
 void PlayingCube::setAngleInRadians(float angle)
 {
+	//if(state == PlayerStates::grounded)
 	if (angle < -(0.05f)) {
 		this->currentAngleInRadians = 0;
 	}
@@ -62,4 +68,24 @@ void PlayingCube::setAngleInRadians(float angle)
 float PlayingCube::getAngleInRadians()
 {
 	return this->currentAngleInRadians;
+}
+
+void PlayingCube::setPreviousDTime(float previousDtime)
+{
+	this->previousDtime = previousDtime;
+}
+
+float PlayingCube::getPreviousDTime()
+{
+	return this->previousDtime;
+}
+
+void PlayingCube::setPreviousRotation(Matrix previousRotation)
+{
+	this->previousRotation = previousRotation;
+}
+
+Matrix PlayingCube::getPreviousRotation()
+{
+	return this->previousRotation;
 }

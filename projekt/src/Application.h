@@ -51,6 +51,8 @@ protected:
     LineBoxModel* playerHitboxVisual;
     LineBoxModel* dragonCube;
 	ShadowMapGenerator ShadowGenerator;
+
+    PhongShader* phongShader;
 };
 
 #endif /* Application_hpp */
