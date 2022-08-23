@@ -21,6 +21,8 @@
 #include "PlayingCube.h"
 #include "LineBoxModel.h"
 
+//constexpr auto epsilon = 1e-6;
+
 class Application
 {
 public:

@@ -52,6 +52,8 @@ void Application::start()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+
+
 void Application::update(float dtime)
 {
 	//um teleportieren beim debugging zu vermeiden! dort sind die dtime 4+ sekunden
@@ -100,7 +102,7 @@ void Application::update(float dtime)
 	playerModel->transform(playerModel->transform() * movementSide);
 	//update bounding box
 	bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
-	
+
 	for (int i{ 0 }; i < lvlObjects.size(); i++)
 	{
 		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
@@ -133,23 +135,23 @@ void Application::update(float dtime)
 		Matrix rotation;
 		float cosValue = previousRotation.m00;
 		float sineValue = previousRotation.m10;
-
-		if ((1.0f >= cosValue && cosValue > 0.0f) && (1.0f > sineValue && sineValue >= 0.0f)) {
+		//1.1f um rundungsfehler zu vermeiden
+		if ((1.1f >= cosValue && cosValue > 0.707f) && (0.707f >= sineValue && sineValue > -0.707f)) {
 			//rotationZ(pi/2)
 			std::cout << "1" << "\n";
 			rotation.rotationZ(AI_DEG_TO_RAD(0));
 		}
-		else if ((0.0f >= cosValue && cosValue > -1.0f) && (1.0f >= sineValue && sineValue > 0.0f)) {
+		else if ((0.707f >= cosValue && cosValue > -0.707f) && (1.1f >= sineValue && sineValue > 0.707f)) {
 			//rotationZ(pi)
 			std::cout << "2" << "\n";
 			rotation.rotationZ(AI_DEG_TO_RAD(90));
 		}
-		else if ((0.0f > cosValue && cosValue >= -1.0f) && (0.0f >= sineValue && sineValue > -1.0f)) {
+		else if ((-0.707f > cosValue && cosValue >= -1.1f) && (0.707f >= sineValue && sineValue > -0.707f)) {
 			//rotationZ(3*pi/2)
 			std::cout << "3" << "\n";
 			rotation.rotationZ(AI_DEG_TO_RAD(180));
 		}
-		else if ((1.0f > cosValue && cosValue >= 0.0f) && (0.0f > sineValue && sineValue >= -1.0f)) {
+		else if ((0.707f > cosValue && cosValue >= -0.707f) && (-0.707f > sineValue && sineValue >= -1.1f)) {
 			rotation.rotationZ(AI_DEG_TO_RAD(270)); //upright
 			std::cout << "4" << "\n";
 
@@ -642,3 +644,40 @@ void Application::createShadowTestScene()
 
 			rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
 		}*/
+
+
+/*
+	Matrix rotation;
+		float cosValue = previousRotation.m00;
+		float sineValue = previousRotation.m10;
+
+		if ((1.0f >= cosValue && cosValue > 0.0f) && (1.0f > sineValue && sineValue >= 0.0f)) {
+			//rotationZ(pi/2)
+			std::cout << "1" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(0));
+		}
+		else if ((0.0f >= cosValue && cosValue > -1.0f) && (1.0f >= sineValue && sineValue > 0.0f)) {
+			//rotationZ(pi)
+			std::cout << "2" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(90));
+		}
+		else if ((0.0f > cosValue && cosValue >= -1.0f) && (0.0f >= sineValue && sineValue > -1.0f)) {
+			//rotationZ(3*pi/2)
+			std::cout << "3" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(180));
+		}
+		else if ((1.0f > cosValue && cosValue >= 0.0f) && (0.0f > sineValue && sineValue >= -1.0f)) {
+			rotation.rotationZ(AI_DEG_TO_RAD(270)); //upright
+			std::cout << "4" << "\n";
+
+		}
+		else {
+			std::cout << "5" << "\n";
+
+			rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
+		}
+		std::cout << "cosValue: " << cosValue << "\t" << "sineValue: " << sineValue << "\n";
+		playerModel->transform(playerModel->transform() * rotation);
+		player->setPreviousRotation(rotation);
+
+*/
