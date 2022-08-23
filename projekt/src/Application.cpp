@@ -54,9 +54,12 @@ void Application::start()
 
 void Application::update(float dtime)
 {
+	//um teleportieren beim debugging zu vermeiden! dort sind die dtime 4+ sekunden
+	if (dtime > 0.01f) {
+		dtime = 0.01;
+	}
+
 	//unrotate
-
-
 	Matrix previousRotation = player->getPreviousRotation(); //needed at the end, to continue rotation
 	Matrix invOfpreviousRotation = Matrix(previousRotation);
 	invOfpreviousRotation.invert();
@@ -72,19 +75,24 @@ void Application::update(float dtime)
 	playerModel->transform(transformBeforeMoveDown * movementDown);
 
 	AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
-
+	bool collisionHappenedOnce = false;
 	for (int i{ 0 }; i < lvlObjects.size(); i++)
 	{
 		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
 		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
 		if (collision) {
 			player->getBlockModel()->transform(transformBeforeMoveDown);
-			player->setPlayerState(PlayerStates::grounded);
-		}
-		else {
-			player->setPlayerState(PlayerStates::falling);
+			collisionHappenedOnce = true;
 		}
 	}
+	if (collisionHappenedOnce) {
+		player->setPlayerState(PlayerStates::grounded);
+	}
+	else {
+		player->setPlayerState(PlayerStates::falling);
+
+	}
+
 
 	//sideways movement and collision:
 	Matrix movementSide;
@@ -112,13 +120,53 @@ void Application::update(float dtime)
 		}
 	}
 
-	//rotate the block furhter!
-	Matrix rotation;
-	rotation.rotationZ(-dtime * AI_DEG_TO_RAD(120));
-	playerModel->transform(playerModel->transform() * previousRotation * rotation );
+	if (player->getPlayerState() == PlayerStates::falling) {
+		//rotate the block furhter!
+		Matrix rotation;
+		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(120));
+		playerModel->transform(playerModel->transform() * previousRotation * rotation);
 
-	//set for next frame
-	player->setPreviousRotation(previousRotation * rotation);
+		//set for next frame
+		player->setPreviousRotation(previousRotation * rotation);
+	}
+	else if (player->getPlayerState() == PlayerStates::grounded) {
+		Matrix rotation;
+		float cosValue = previousRotation.m00;
+		float sineValue = previousRotation.m10;
+
+		if ((1.0f >= cosValue && cosValue > 0.0f) && (1.0f > sineValue && sineValue >= 0.0f)) {
+			//rotationZ(pi/2)
+			std::cout << "1" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(0));
+		}
+		else if ((0.0f >= cosValue && cosValue > -1.0f) && (1.0f >= sineValue && sineValue > 0.0f)) {
+			//rotationZ(pi)
+			std::cout << "2" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(90));
+		}
+		else if ((0.0f > cosValue && cosValue >= -1.0f) && (0.0f >= sineValue && sineValue > -1.0f)) {
+			//rotationZ(3*pi/2)
+			std::cout << "3" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(180));
+		}
+		else if ((1.0f > cosValue && cosValue >= 0.0f) && (0.0f > sineValue && sineValue >= -1.0f)) {
+			rotation.rotationZ(AI_DEG_TO_RAD(270)); //upright
+			std::cout << "4" << "\n";
+
+		}
+		else {
+			std::cout << "5" << "\n";
+
+			rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
+		}
+		std::cout << "cosValue: " << cosValue << "\t" << "sineValue: " << sineValue << "\n";
+		playerModel->transform(playerModel->transform() * rotation);
+		player->setPreviousRotation(rotation);
+
+	}
+	
+
+
 	//make camera follow the block
 	Vector playerPositionAfter = playerModel->transform().translation();
 
@@ -566,3 +614,31 @@ void Application::createShadowTestScene()
 //AABB bbOfPLayerTest = player->getBlockModel()->boundingBox();
 //std::cout << "bounding box pos: " << bbOfPLayerTest.Max.X << ", " << bbOfPLayerTest.Max.Y << " , " << bbOfPLayerTest.Max.Z << " min"
 //	<< bbOfPLayerTest.Min.X << ", " << bbOfPLayerTest.Min.Y << ", " << bbOfPLayerTest.Min.Z << "\n";*/
+
+
+/*
+		if ((1.0f > cosValue && cosValue >= 0.0f) && (1.0f >= sineValue && sineValue > 0.0f)) {
+			//rotationZ(pi/2)
+			std::cout << "1" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(-90));
+		}
+		else if ((0.0f > cosValue && cosValue >= -1.0f) && (1.0f > sineValue && sineValue >= 0.0f)) {
+			//rotationZ(pi)
+			std::cout << "2" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(-180));
+		}
+		else if ((0.0f >= cosValue && cosValue > -1.0f) && (0.0f > sineValue && sineValue >= -1.0f)) {
+			//rotationZ(3*pi/2)
+			std::cout << "3" << "\n";
+			rotation.rotationZ(AI_DEG_TO_RAD(-270));
+		}
+		else if ((1.0f >= cosValue && cosValue > 0.0f) && (0.0f >= sineValue && sineValue > -1.0f)) {
+			rotation.rotationZ(0); //upright
+			std::cout << "4" << "\n";
+
+		}
+		else {
+			std::cout << "5" << "\n";
+
+			rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
+		}*/

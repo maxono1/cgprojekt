@@ -11,7 +11,7 @@ PlayingCube::PlayingCube(const char* cubeFile)
 
 	Matrix translation, scale, rotationZTest;
 	scale.scale(0.4f);
-	translation.translation(-20, 15, 0);
+	translation.translation(-16, 12, 0);
 	//rotationZTest.rotationZ(AI_DEG_TO_RAD(-45));
 	startPosition = translation * scale;
 	model->transform(startPosition);
