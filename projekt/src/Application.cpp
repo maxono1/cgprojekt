@@ -170,7 +170,7 @@ void Application::update(float dtime)
 	//make camera follow the block
 	Vector playerPositionAfter = playerModel->transform().translation();
 
-	Cam.setPosition(Vector(playerPositionAfter.X + 5, playerPositionAfter.Y + 3, playerPositionAfter.Z - 15));
+	Cam.setPosition(Vector(playerPositionAfter.X - 2, playerPositionAfter.Y + 3, playerPositionAfter.Z - 10 ));
 	Cam.setTarget(playerPositionAfter);
     Cam.update();
 }
@@ -226,7 +226,7 @@ void Application::createGeometryTestScene()
 
 	phongShader = new PhongShader();
 
-	for (int i{ 0 }; i < 10; i++) {
+	for (int i{ 0 }; i < 15; i++) {
 		pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
 		pModel->shader(phongShader, false);
 		lvlObjects.push_back(pModel);
@@ -258,8 +258,21 @@ void Application::createGeometryTestScene()
 	translation.translation(31.0f, -5.5f, 0);
 	lvlObjects[8]->transform(translation);
 
+	translation.translation(34.0f, -5.5f, 0);
+	rotation.rotationX(AI_DEG_TO_RAD(90));
+	lvlObjects[9]->transform(translation * rotation);
+
 	translation.translation(37.0f, -5.5f, 0);
-	lvlObjects[9]->transform(translation);
+	lvlObjects[10]->transform(translation);
+
+	translation.translation(40.0f, -5.5f, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	lvlObjects[11]->transform(translation * rotation);
+
+	translation.translation(43.0f, -5.5f, 0);
+	lvlObjects[12]->transform(translation);
+
+
 	
 
 	for (int i{ 0 }; i < lvlObjects.size(); i++) 
@@ -566,7 +579,7 @@ void Application::rotatePlayerModel(float dtime, Matrix previousRotation, Model*
 	if (player->getPlayerState() == PlayerStates::airborne || player->getPlayerState() == PlayerStates::continuousJump) {
 		//rotate the block furhter!
 		Matrix rotation;
-		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(120));
+		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(150));
 		playerModel->transform(playerModel->transform() * previousRotation * rotation);
 
 		//set for next frame

@@ -39,7 +39,7 @@ public:
 private:
 	void initJumpVariables();
 public:
-	const float horizontalSpeed = 15.0f;
+	const float horizontalSpeed = 18.0f;
 
 private:
 	Model* blockModel;

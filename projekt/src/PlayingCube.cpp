@@ -11,7 +11,7 @@ PlayingCube::PlayingCube(const char* cubeFile)
 
 	Matrix translation, scale, rotationZTest;
 	scale.scale(0.4f);
-	translation.translation(-25, 6, 0);
+	translation.translation(-16, 6, 0);
 	//rotationZTest.rotationZ(AI_DEG_TO_RAD(-45));
 	startPosition = translation * scale;
 	model->transform(startPosition);
@@ -107,12 +107,12 @@ Matrix PlayingCube::getPreviousRotation()
 void PlayingCube::initJumpVariables()
 {
 	maxJumpHeight = 9.1f;
-	maxJumpTime = 0.5f; //fits with around 26frames for 60fps game
+	maxJumpTime = 0.3f; //fits with around 26frames for 60fps game
 
 	float timeToApex = maxJumpTime / 2;
 	gravity = (-2.0f * maxJumpHeight) / (timeToApex * timeToApex);
 
 	//v0
 	initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
-	maxFallSpeed = -9.0f;
+	maxFallSpeed = -18.0f;
 }
