@@ -22,6 +22,8 @@
 #include "LineBoxModel.h"
 
 //constexpr auto epsilon = 1e-6;
+//constexpr float gravity = 9.8f;
+//constexpr float initialJumpVelocity = 15.0f;
 
 class Application
 {
@@ -32,11 +34,18 @@ public:
     void update(float dtime);
     void draw();
     void end();
+    bool isJumpPressed();
 protected:
     void createGeometryTestScene();
 	void createScene();
 	void createNormalTestScene();
 	void createShadowTestScene();
+private:
+    void handleKeyPresses();
+    void rotatePlayerModel(float dtime, Matrix previousRotation, Model* playerModel);
+    Matrix calcRotationSnapping(float cosValue, float sineValue);
+
+protected:
     Camera Cam;
     ModelList Models;
     ModelList lvlList;
@@ -55,6 +64,9 @@ protected:
 	ShadowMapGenerator ShadowGenerator;
 
     PhongShader* phongShader;
+private:
+    bool jumpPressed;
+    
 };
 
 #endif /* Application_hpp */

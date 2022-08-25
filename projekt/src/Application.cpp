@@ -58,8 +58,10 @@ void Application::update(float dtime)
 {
 	//um teleportieren beim debugging zu vermeiden! dort sind die dtime 4+ sekunden
 	if (dtime > 0.01f) {
-		dtime = 0.01;
+		dtime = 0.01f;
 	}
+	std::cout << dtime << "dtime" << "\n";
+	handleKeyPresses();
 
 	//unrotate
 	Matrix previousRotation = player->getPreviousRotation(); //needed at the end, to continue rotation
@@ -68,40 +70,81 @@ void Application::update(float dtime)
 
 	Model* playerModel = player->getBlockModel();
 	playerModel->transform(playerModel->transform() * invOfpreviousRotation);
+	
+	if (isJumpPressed() && (player->getPlayerState() == PlayerStates::grounded || player->getPlayerState() == PlayerStates::continuousJump)) {
+		player->setCurrentVelocityY(player->getInitialJumpVelocity());
+	}
+
 
 	//movement down and collision detect
-	Matrix movementDown;
-	movementDown.translation(0, -dtime * 5, 0);
+	Matrix movementY;
+	//movementY.translation(0, dtime * (-5), 0);
+	float completeVelocity = player->getCurrentVelocityY() * dtime + (player->getGravity() * dtime * dtime) / 2;
+	std::cout << completeVelocity << "completeVel" << "\n";
+	movementY.translation(0, completeVelocity ,0);
 	
-	Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
-	playerModel->transform(transformBeforeMoveDown * movementDown);
+	if (completeVelocity <= 0.0f) {
+		Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
+		playerModel->transform(transformBeforeMoveDown * movementY);
 
-	AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
-	bool collisionHappenedOnce = false;
-	for (int i{ 0 }; i < lvlObjects.size(); i++)
-	{
-		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
-		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
-		if (collision) {
-			player->getBlockModel()->transform(transformBeforeMoveDown);
-			collisionHappenedOnce = true;
+		//das hier nur machen wenn movement down ist
+		AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+		bool collisionHappenedOnce = false;
+		for (int i{ 0 }; i < lvlObjects.size(); i++)
+		{
+			AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+			bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+			if (collision) {
+				player->getBlockModel()->transform(transformBeforeMoveDown);
+				collisionHappenedOnce = true;
+			}
+		}
+		//setting the current velocity might be best if it happens here
+		if (collisionHappenedOnce) {
+			if (!isJumpPressed()) {
+				player->setPlayerState(PlayerStates::grounded);
+			}
+			else {
+				player->setPlayerState(PlayerStates::continuousJump);
+				//this is to keep rotation when you hold jump while touching the ground
+			}
+			float newVelocity = -0.01f;
+			std::cout << newVelocity << "newVel" << "\n";
+			player->setCurrentVelocityY(newVelocity);
+		}
+		else {
+			player->setPlayerState(PlayerStates::airborne);
+			player->applyGravityWhileFalling(dtime);
 		}
 	}
-	if (collisionHappenedOnce) {
-		player->setPlayerState(PlayerStates::grounded);
-	}
 	else {
-		player->setPlayerState(PlayerStates::falling);
+		Matrix transformBeforeMoveUp = playerModel->transform();
+		playerModel->transform(transformBeforeMoveUp * movementY);
 
+
+		AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+		for (int i{ 0 }; i < lvlObjects.size(); i++)
+		{
+			AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+			bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+			if (collision)
+			{
+				player->respawn(); //respawn setted falling anyway
+			}
+		}
+		player->setPlayerState(PlayerStates::airborne);
+		player->applyGravityWhileFalling(dtime);
 	}
+	
+	
 
 
 	//sideways movement and collision:
 	Matrix movementSide;
-	movementSide.translation(dtime * 3, 0, 0);
+	movementSide.translation(dtime * player->horizontalSpeed, 0, 0);
 	playerModel->transform(playerModel->transform() * movementSide);
 	//update bounding box
-	bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
+	AABB bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
 
 	for (int i{ 0 }; i < lvlObjects.size(); i++)
 	{
@@ -122,53 +165,8 @@ void Application::update(float dtime)
 		}
 	}
 
-	if (player->getPlayerState() == PlayerStates::falling) {
-		//rotate the block furhter!
-		Matrix rotation;
-		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(120));
-		playerModel->transform(playerModel->transform() * previousRotation * rotation);
-
-		//set for next frame
-		player->setPreviousRotation(previousRotation * rotation);
-	}
-	else if (player->getPlayerState() == PlayerStates::grounded) {
-		Matrix rotation;
-		float cosValue = previousRotation.m00;
-		float sineValue = previousRotation.m10;
-		//1.1f um rundungsfehler zu vermeiden
-		if ((1.1f >= cosValue && cosValue > 0.707f) && (0.707f >= sineValue && sineValue > -0.707f)) {
-			//rotationZ(pi/2)
-			std::cout << "1" << "\n";
-			rotation.rotationZ(AI_DEG_TO_RAD(0));
-		}
-		else if ((0.707f >= cosValue && cosValue > -0.707f) && (1.1f >= sineValue && sineValue > 0.707f)) {
-			//rotationZ(pi)
-			std::cout << "2" << "\n";
-			rotation.rotationZ(AI_DEG_TO_RAD(90));
-		}
-		else if ((-0.707f > cosValue && cosValue >= -1.1f) && (0.707f >= sineValue && sineValue > -0.707f)) {
-			//rotationZ(3*pi/2)
-			std::cout << "3" << "\n";
-			rotation.rotationZ(AI_DEG_TO_RAD(180));
-		}
-		else if ((0.707f > cosValue && cosValue >= -0.707f) && (-0.707f > sineValue && sineValue >= -1.1f)) {
-			rotation.rotationZ(AI_DEG_TO_RAD(270)); //upright
-			std::cout << "4" << "\n";
-
-		}
-		else {
-			std::cout << "5" << "\n";
-
-			rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
-		}
-		std::cout << "cosValue: " << cosValue << "\t" << "sineValue: " << sineValue << "\n";
-		playerModel->transform(playerModel->transform() * rotation);
-		player->setPreviousRotation(rotation);
-
-	}
+	rotatePlayerModel(dtime, previousRotation, playerModel);
 	
-
-
 	//make camera follow the block
 	Vector playerPositionAfter = playerModel->transform().translation();
 
@@ -204,6 +202,11 @@ void Application::end()
     Models.clear();
 	delete player;
 	delete phongShader;
+}
+
+bool Application::isJumpPressed()
+{
+	return jumpPressed;
 }
 
 void Application::createGeometryTestScene()
@@ -548,6 +551,62 @@ void Application::createShadowTestScene()
 	ShaderLightMapper::instance().addLight(sl);
 }
 
+void Application::handleKeyPresses()
+{
+	if (glfwGetKey(pWindow, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		this->jumpPressed = true;
+	}
+	else if (glfwGetKey(pWindow, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+		this->jumpPressed = false;
+	}
+}
+
+void Application::rotatePlayerModel(float dtime, Matrix previousRotation, Model* playerModel)
+{
+	if (player->getPlayerState() == PlayerStates::airborne || player->getPlayerState() == PlayerStates::continuousJump) {
+		//rotate the block furhter!
+		Matrix rotation;
+		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(120));
+		playerModel->transform(playerModel->transform() * previousRotation * rotation);
+
+		//set for next frame
+		player->setPreviousRotation(previousRotation * rotation);
+	}
+	else if (player->getPlayerState() == PlayerStates::grounded) {
+		//Matrix rotation;
+		//float cosValue = previousRotation.m00;
+		//float sineValue = previousRotation.m10;
+		//std::cout << "cosValue: " << cosValue << "\t" << "sineValue: " << sineValue << "\n";
+		Matrix rotation = calcRotationSnapping(previousRotation.m00, previousRotation.m10);
+		playerModel->transform(playerModel->transform() * rotation);
+		player->setPreviousRotation(rotation);
+
+	}
+}
+
+Matrix Application::calcRotationSnapping(float cosValue, float sineValue)
+{
+	Matrix rotation;
+	//1.1f um rundungsfehler bei überprüfung der gleichheit mit 1.0f zu vermeiden
+
+	if ((1.1f >= cosValue && cosValue > 0.707f) && (0.707f >= sineValue && sineValue > -0.707f)) {
+		rotation.rotationZ(AI_DEG_TO_RAD(0));
+	}
+	else if ((0.707f >= cosValue && cosValue > -0.707f) && (1.1f >= sineValue && sineValue > 0.707f)) {
+		rotation.rotationZ(AI_DEG_TO_RAD(90));
+	}
+	else if ((-0.707f > cosValue && cosValue >= -1.1f) && (0.707f >= sineValue && sineValue > -0.707f)) {
+		rotation.rotationZ(AI_DEG_TO_RAD(180));
+	}
+	else if ((0.707f > cosValue && cosValue >= -0.707f) && (-0.707f > sineValue && sineValue >= -1.1f)) {
+		rotation.rotationZ(AI_DEG_TO_RAD(270)); //upright
+	}
+	else {
+		rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
+	}
+	return rotation;
+}
+
 ////player->update(dtime);
 //	//wir brauchen das level als Model damit collision detection gemacht werden kann?
 //
@@ -679,5 +738,70 @@ void Application::createShadowTestScene()
 		std::cout << "cosValue: " << cosValue << "\t" << "sineValue: " << sineValue << "\n";
 		playerModel->transform(playerModel->transform() * rotation);
 		player->setPreviousRotation(rotation);
+
+*/
+
+/*
+//movement down and collision detect
+	Matrix movementY;
+	movementY.translation(0, -dtime * 5, 0);
+
+	Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
+	playerModel->transform(transformBeforeMoveDown * movementY);
+
+	AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+	bool collisionHappenedOnce = false;
+	for (int i{ 0 }; i < lvlObjects.size(); i++)
+	{
+		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+		if (collision) {
+			player->getBlockModel()->transform(transformBeforeMoveDown);
+			collisionHappenedOnce = true;
+		}
+	}
+	if (collisionHappenedOnce) {
+		player->setPlayerState(PlayerStates::grounded);
+	}
+	else {
+		player->setPlayerState(PlayerStates::falling);
+
+	}
+
+
+	//sideways movement and collision:
+	Matrix movementSide;
+	movementSide.translation(dtime * 3, 0, 0);
+	playerModel->transform(playerModel->transform() * movementSide);
+	//update bounding box
+	bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
+
+	for (int i{ 0 }; i < lvlObjects.size(); i++)
+	{
+		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+		if (collision)
+		{
+			player->respawn();
+		}
+	}
+
+	for (int i = 0; i < obstacles.size(); i++)
+	{
+		AABB bbOfObstacle = obstacles[i]->boundingBox().transform(obstacles[i]->transform());
+		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObstacle);
+		if (collision) {
+			player->respawn();
+		}
+	}
+
+	rotatePlayerModel(dtime, previousRotation, playerModel);
+
+	//make camera follow the block
+	Vector playerPositionAfter = playerModel->transform().translation();
+
+	Cam.setPosition(Vector(playerPositionAfter.X + 5, playerPositionAfter.Y + 3, playerPositionAfter.Z - 15));
+	Cam.setTarget(playerPositionAfter);
+	Cam.update();
 
 */

@@ -2,9 +2,10 @@
 #include "BaseModel.h"
 #include "model.h"
 #include "PhongShader.h"
+#include <math.h>
 
 enum class PlayerStates {
-	jumping, falling, grounded
+	airborne, grounded, continuousJump
 };
 
 class PlayingCube
@@ -16,6 +17,9 @@ public:
 	Model* getBlockModel();
 	void update(float dtime);
 	void respawn();
+	void applyGravityWhileFalling(float dtime);
+
+
 	void setAngleInRadians(float angle);
 	float getAngleInRadians();
 	void setPreviousDTime(float previousDtime);
@@ -26,13 +30,35 @@ public:
 	PlayerStates getPlayerState() { return state; };
 	void setPlayerState(PlayerStates newState) { this->state = newState; };
 
+	float getCurrentVelocityY() { return currentVelocityY; };
+	void setCurrentVelocityY(float velocity) { this->currentVelocityY = velocity; };
+
+	float getGravity() { return gravity; };
+	float getInitialJumpVelocity() { return initialJumpVelocity; };
+	float getMaxFallSpeed() { return maxFallSpeed; };
+private:
+	void initJumpVariables();
+public:
+	const float horizontalSpeed = 15.0f;
+
 private:
 	Model* blockModel;
-	bool jumpPressed;
+	
 	Matrix startPosition;
 	float currentAngleInRadians;
-	PlayerStates state;
+	
 	float previousDtime;
 	Matrix previousRotation;
+
+	PlayerStates state;
+	bool jumpPressed;
+	float initialJumpVelocity;
+	float maxJumpHeight;
+	float maxJumpTime;
+	float maxFallSpeed;
+	float gravity;
+
+	float currentVelocityY;
+	
 };
 
