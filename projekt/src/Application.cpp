@@ -579,7 +579,7 @@ void Application::rotatePlayerModel(float dtime, Matrix previousRotation, Model*
 	if (player->getPlayerState() == PlayerStates::airborne || player->getPlayerState() == PlayerStates::continuousJump) {
 		//rotate the block furhter!
 		Matrix rotation;
-		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(150));
+		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(180));
 		playerModel->transform(playerModel->transform() * previousRotation * rotation);
 
 		//set for next frame
