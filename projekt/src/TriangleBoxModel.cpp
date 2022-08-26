@@ -17,6 +17,7 @@ TriangleBoxModel::TriangleBoxModel(float Width, float Height, float Depth)
     float CoordHeight = Height / 2;
     float CoordDepth = Depth / 2;
 
+
     //Die Punkte
     Vector A(CoordWidth, -CoordHeight, CoordDepth);
     Vector B(CoordWidth, -CoordHeight, -CoordDepth);

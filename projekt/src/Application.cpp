@@ -193,6 +193,8 @@ void Application::draw()
     // 3. check once per frame for opengl errors
     GLenum Error = glGetError();
     assert(Error==0);
+
+	
 }
 void Application::end()
 {
