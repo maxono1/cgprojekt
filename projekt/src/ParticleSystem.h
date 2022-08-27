@@ -1,6 +1,6 @@
 #pragma once
 #include "vector.h"
-#include "color.h"
+#include "Color_A.h"
 #include "Camera.h"
 #include <vector>
 
@@ -8,8 +8,7 @@ struct ParticleProps
 {
 	Vector position;
 	Vector velocity, velocityVariation;
-	Color colorBegin, colorEnd;
-	float alphaBegin, alphaEnd;
+	Color_A colorBegin, colorEnd;
 
 	float sizeBegin, sizeEnd, sizeVariation;
 	float lifeTime = 1.0f;
@@ -20,8 +19,8 @@ struct Particle
 
 	Vector position;
 	Vector velocity;
-	Color colorBegin, colorEnd;
-	float alphaBegin, alphaEnd;
+	Color_A colorBegin, colorEnd;
+	
 
 	float rotation;
 	float sizeBegin, sizeEnd;
@@ -47,5 +46,6 @@ private:
 	//std::unique_ptr<
 	GLint particleShaderViewProj, particleShaderTransform, particleShaderColor;
 };
+
 
 

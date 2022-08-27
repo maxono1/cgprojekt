@@ -24,6 +24,7 @@
 #include "triangleboxmodel.h"
 #include "model.h"
 #include "ShaderLightmapper.h"
+#include "utils.h"
 
 
 #ifdef WIN32
@@ -137,7 +138,7 @@ void Application::update(float dtime)
 	}
 	
 	
-
+	
 
 	//sideways movement and collision:
 	Matrix movementSide;
