@@ -402,7 +402,7 @@ void Application::createGeometryTestScene()
 	dl->castShadows(true);
 	ShaderLightMapper::instance().addLight(dl);
 
-	
+	particlePropsTest = ParticleProps();
 }
 
 void Application::createScene()

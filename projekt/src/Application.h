@@ -20,6 +20,7 @@
 #include "ShadowMapGenerator.h"
 #include "PlayingCube.h"
 #include "LineBoxModel.h"
+#include "ParticleSystem.h"
 
 //constexpr auto epsilon = 1e-6;
 //constexpr float gravity = 9.8f;
@@ -64,6 +65,10 @@ protected:
 	ShadowMapGenerator ShadowGenerator;
 
     PhongShader* phongShader;
+
+    //Particle stuff
+    ParticleProps particlePropsTest;
+    ParticleSystem particleSystem;
 private:
     bool jumpPressed;
     
