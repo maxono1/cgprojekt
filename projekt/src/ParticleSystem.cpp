@@ -1,25 +1,39 @@
 
 #include "ParticleSystem.h"
+#include "ParticleShader.h"
 
 
-void ParticleSystem::emit(const ParticleProps& particleProps)
+ParticloSystem::ParticloSystem()
+{
+    createParticleModel();
+    particlePool.resize(100);
+}
+
+void ParticloSystem::emit(const ParticleProps& particleProps)
 {
     //diese funktion setted die eigenschaften des partikels und aktiviert es, damit es in draw gezeichnet wird
     auto& particle = particlePool[poolIndex];
     particle.position = particleProps.position;
     particle.rotation = particleProps.rotation;
     particle.rotationSpeed = particleProps.rotationSpeed;
-    particle.velocity = particleProps.velocity + (Vector(Random::Float() - 0.5f, Random::Float() - 0.5f, Random::Float() - 0.5f) * 2);
-    particle.lifeTime = particleProps.lifeTime - (2.0f + (float)Random::Float());
+    particle.velocity = particleProps.velocity + (Vector(randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f)) * 2);
+    particle.lifeTime = particleProps.lifeTime - (2.0f + (float)randomFloat(0.0f, 1.0f));
     particle.lifeRemaining = particle.lifeTime;
     particle.sizeBegin = particleProps.sizeBegin;
     particle.sizeEnd = particleProps.sizeEnd;
     particle.colorBegin = particleProps.colorBegin;
     particle.colorEnd = particleProps.colorEnd;
+
+    //wir haben ein unsigned int
+    if (poolIndex == 0)
+        poolIndex = PARTICLE_COUNT - 1;
+    else {
+        poolIndex--;
+    }
 }
 
 
-void ParticleSystem::update(float dtime)
+void ParticloSystem::update(float dtime)
 {
     // diese methode geht durch alle partikel und zieht von der verbleibenden lebenszeit ab
 
@@ -36,7 +50,7 @@ void ParticleSystem::update(float dtime)
 }
 
 
-void ParticleSystem::draw(const BaseCamera& cam)
+void ParticloSystem::draw(const BaseCamera& cam)
 {
     BaseModel::draw(cam);
     int particleCount = 0;
@@ -46,9 +60,9 @@ void ParticleSystem::draw(const BaseCamera& cam)
             Matrix ModelMat, TransMat, RotMat, ScaleMat;
             TransMat.translation(particle.position);
             RotMat.rotationYawPitchRoll(particle.rotation);
-            ScaleMat.scale(particle.SizeEnd + ((particle.LifeRemaining / particle.LifeTime) * (particle.SizeBegin - particle.SizeEnd)));
+            ScaleMat.scale(particle.sizeEnd + ((particle.lifeRemaining / particle.lifeTime) * (particle.sizeBegin - particle.sizeEnd)));
             ModelMat = TransMat * RotMat * ScaleMat;
-            dynamic_cast<ParticleShader*>(pShader)->modelMatrixHinzufügen(ModelMat, particleCount);
+            dynamic_cast<ParticleShader*>(pShader)->addMatrix(ModelMat, particleCount);
             particleCount++;
         }
     }
@@ -63,14 +77,14 @@ void ParticleSystem::draw(const BaseCamera& cam)
 
 }
 
-ParticleProps ParticleSystem::createExampleProps()
+ParticleProps ParticloSystem::createExampleProps()
 {
     ParticleProps props = ParticleProps();
     props.position = Vector(0, 0, 0);
     props.velocity = Vector(-1, 0.3f, 0);
     props.velocityVariation = Vector(0.2f, 0.3f, 0.2f);
     props.rotation = Vector(0, 0, 0);
-    props.rotationSpeed = Vector(AI_DEG_TO_RAD(720), 0, 0);
+    props.rotationSpeed = Vector(2.0f*3.14f, 0, 0);
     props.colorBegin = Color_A(1,0,0,1);
     props.colorEnd = Color_A(0,0,1,0.2f);
 
@@ -84,7 +98,7 @@ ParticleProps ParticleSystem::createExampleProps()
 }
 
 //code aus praktikum "TriangleBoxModel"
-void ParticleSystem::createParticleModel()
+void ParticloSystem::createParticleModel()
 {
     VB.begin();
 
@@ -285,17 +299,11 @@ void ParticleSystem::createParticleModel()
     IB.end();
 }
 
-ParticleProps::ParticleProps()
-{
-    position = Vector(0, 0, 0);
-    velocity = Vector(-1, 0.3f, 0);
-    velocityVariation = Vector(0.2f, 0.3f, 0.2f);
-    rotation = Vector(0, 0, 0);
-    rotationSpeed = Vector(AI_DEG_TO_RAD(720), 0, 0);
-    colorBegin = Color_A(1, 0, 0, 1);
-    colorEnd = Color_A(0, 0, 1, 0.2f);
-    sizeBegin = 0.5f;
-    sizeEnd = 0.001f;
-    sizeVariation = 0.1f;
-    lifeTime = 1.0f;
+/** https://stackoverflow.com/questions/5289613/generate-random-float-between-two-floats **/
+float randomFloat(float a, float b) {
+    float random = ((float)rand()) / (float)RAND_MAX;
+    float diff = b - a;
+    float r = random * diff;
+    return a + r;
 }
+

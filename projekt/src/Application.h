@@ -9,6 +9,7 @@
 #ifndef Application_hpp
 #define Application_hpp
 
+
 #include <stdio.h>
 #include <list>
 #include "camera.h"
@@ -17,10 +18,12 @@
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
 #include "basemodel.h"
+#include "ParticleProps.h"
+#include "ParticleSystem.h"
 #include "ShadowMapGenerator.h"
 #include "PlayingCube.h"
 #include "LineBoxModel.h"
-#include "ParticleSystem.h"
+
 
 //constexpr auto epsilon = 1e-6;
 //constexpr float gravity = 9.8f;
@@ -68,7 +71,7 @@ protected:
 
     //Particle stuff
     ParticleProps particlePropsTest;
-    ParticleSystem particleSystem;
+    ParticloSystem* particleSystem;
 private:
     bool jumpPressed;
     

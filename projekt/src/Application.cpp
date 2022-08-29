@@ -168,9 +168,16 @@ void Application::update(float dtime)
 
 	rotatePlayerModel(dtime, previousRotation, playerModel);
 	
-	//make camera follow the block
+	
 	Vector playerPositionAfter = playerModel->transform().translation();
+	particlePropsTest = ParticleProps();
+	particlePropsTest.position = playerPositionAfter;
+	particlePropsTest.sizeBegin = 100;
+	particleSystem->emit(particlePropsTest);
 
+	particleSystem->update(dtime);
+
+	//make camera follow the block
 	Cam.setPosition(Vector(playerPositionAfter.X - 2, playerPositionAfter.Y + 3, playerPositionAfter.Z - 10 ));
 	Cam.setTarget(playerPositionAfter);
     Cam.update();
@@ -195,7 +202,7 @@ void Application::draw()
     GLenum Error = glGetError();
     assert(Error==0);
 
-	
+	particleSystem->draw(Cam);
 }
 void Application::end()
 {
@@ -205,6 +212,7 @@ void Application::end()
     Models.clear();
 	delete player;
 	delete phongShader;
+	delete particleSystem;
 }
 
 bool Application::isJumpPressed()
@@ -402,7 +410,10 @@ void Application::createGeometryTestScene()
 	dl->castShadows(true);
 	ShaderLightMapper::instance().addLight(dl);
 
+
+
 	particlePropsTest = ParticleProps();
+	particleSystem = new ParticloSystem();
 }
 
 void Application::createScene()
