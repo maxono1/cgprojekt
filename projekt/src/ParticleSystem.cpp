@@ -5,19 +5,20 @@
 
 ParticloSystem::ParticloSystem()
 {
+
     createParticleModel();
-    particlePool.resize(100);
+    particlePool.resize(PARTICLE_COUNT);
 }
 
 void ParticloSystem::emit(const ParticleProps& particleProps)
 {
     //diese funktion setted die eigenschaften des partikels und aktiviert es, damit es in draw gezeichnet wird
     auto& particle = particlePool[poolIndex];
-    particle.position = particleProps.position;
+    particle.position = particleProps.position + (Vector(randomFloat(0.1f, 0.5f), 0, randomFloat(-0.3f, 0.3f)) * 1);
     particle.rotation = particleProps.rotation;
-    particle.rotationSpeed = particleProps.rotationSpeed;
-    particle.velocity = particleProps.velocity + (Vector(randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f)) * 2);
-    particle.lifeTime = particleProps.lifeTime - (2.0f + (float)randomFloat(0.0f, 1.0f));
+    particle.rotationSpeed = particleProps.rotationSpeed + (Vector(randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f)) * 4);
+    particle.velocity = particleProps.velocity + (Vector(randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f), randomFloat(-0.5f, 0.5f)) * 4);
+    particle.lifeTime = particleProps.lifeTime - ((float)randomFloat(0.0f, 1.0f));
     particle.lifeRemaining = particle.lifeTime;
     particle.sizeBegin = particleProps.sizeBegin;
     particle.sizeEnd = particleProps.sizeEnd;
@@ -302,6 +303,7 @@ void ParticloSystem::createParticleModel()
 /** https://stackoverflow.com/questions/5289613/generate-random-float-between-two-floats **/
 float randomFloat(float a, float b) {
     float random = ((float)rand()) / (float)RAND_MAX;
+    //std::cout << "random: " << random << '\n';
     float diff = b - a;
     float r = random * diff;
     return a + r;

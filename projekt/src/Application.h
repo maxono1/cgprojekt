@@ -20,6 +20,7 @@
 #include "basemodel.h"
 #include "ParticleProps.h"
 #include "ParticleSystem.h"
+#include "ParticleShader.h"
 #include "ShadowMapGenerator.h"
 #include "PlayingCube.h"
 #include "LineBoxModel.h"
@@ -72,6 +73,7 @@ protected:
     //Particle stuff
     ParticleProps particlePropsTest;
     ParticloSystem* particleSystem;
+    ParticleShader* particleShader;
 private:
     bool jumpPressed;
     

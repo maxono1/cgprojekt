@@ -6,7 +6,7 @@
 #define ASSET_DIRECTORY "../assets/"
 #endif
 
-ParticleShader::ParticleShader()
+ParticleShader::ParticleShader(): colorA(1,1,1,1)
 {
 	if (!load(ASSET_DIRECTORY "vsparticle.glsl", ASSET_DIRECTORY"fsparticle.glsl")) {
 		throw std::exception();
@@ -47,7 +47,7 @@ void ParticleShader::activate(const BaseCamera& Cam) const
 	Matrix ModelViewProj = Cam.getProjectionMatrix() * Cam.getViewMatrix();
 	glUniformMatrix4fv(ViewProjLoc, 1, GL_FALSE, ModelViewProj.m);
 	
-	glUniformMatrix4fv(ModelMatLoc, 1, GL_FALSE, modelTransforms);
+	glUniformMatrix4fv(ModelMatLoc, PARTICLE_COUNT, GL_FALSE, modelTransforms);
 
 }
 

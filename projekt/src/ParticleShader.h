@@ -2,7 +2,7 @@
 #include "BaseShader.h"
 #include "Color_A.h"
 
-#define PARTICLE_COUNT 100
+#define PARTICLE_COUNT 1000
 
 class ParticleShader : public BaseShader
 {

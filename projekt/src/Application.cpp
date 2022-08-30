@@ -170,10 +170,16 @@ void Application::update(float dtime)
 	
 	
 	Vector playerPositionAfter = playerModel->transform().translation();
-	particlePropsTest = ParticleProps();
-	particlePropsTest.position = playerPositionAfter;
-	particlePropsTest.sizeBegin = 100;
-	particleSystem->emit(particlePropsTest);
+	if (player->getPlayerState() == PlayerStates::grounded) {
+		particlePropsTest = ParticleProps();
+		particlePropsTest.position = Vector(playerPositionAfter.X - 0.5f, playerPositionAfter.Y - 0.25f, playerPositionAfter.Z);
+		particlePropsTest.sizeBegin = 0.2f;
+		for (size_t i = 0; i < 1; i++)
+		{
+			particleSystem->emit(particlePropsTest);
+		}
+	}
+	
 
 	particleSystem->update(dtime);
 
@@ -414,6 +420,9 @@ void Application::createGeometryTestScene()
 
 	particlePropsTest = ParticleProps();
 	particleSystem = new ParticloSystem();
+	particleShader = new ParticleShader();
+	particleShader->setColorA(Color_A(1, 0, 0, 1));
+	particleSystem->shader(particleShader, true);
 }
 
 void Application::createScene()

@@ -6,7 +6,7 @@ layout(location=1) in vec4 VertexNormal;
 out vec3 Position;
 out vec3 Normal;
 
-#define PARTICLE_COUNT 100
+#define PARTICLE_COUNT 1000
 //array von mat4
 uniform mat4 ModelMats[PARTICLE_COUNT]; //jedes partikel hat seine eigene matrix 
 uniform mat4 ViewProjMat;

@@ -7,6 +7,7 @@
 #include "BaseModel.h"
 #include "ParticleProps.h"
 #include "Random.h"
+#include "ParticleShader.h"
 #include <vector>
 #include <random>
 
@@ -42,7 +43,7 @@ private:
 
 private:
 	std::vector<Particle> particlePool;
-	int poolIndex = 99;
+	int poolIndex = PARTICLE_COUNT - 1;
 
 	GLuint quadVA = 0;
 	//shader
