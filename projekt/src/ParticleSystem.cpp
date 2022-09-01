@@ -1,6 +1,7 @@
 
 #include "ParticleSystem.h"
 #include "ParticleShader.h"
+#include "utils.h"
 
 
 ParticloSystem::ParticloSystem()
@@ -24,6 +25,7 @@ void ParticloSystem::emit(const ParticleProps& particleProps)
     particle.sizeEnd = particleProps.sizeEnd;
     particle.colorBegin = particleProps.colorBegin;
     particle.colorEnd = particleProps.colorEnd;
+    particle.colorCurrent = particleProps.colorBegin;
 
     //wir haben ein unsigned int
     if (poolIndex == 0)
@@ -46,6 +48,13 @@ void ParticloSystem::update(float dtime)
             //von der matrix diese sachen holen
             particle.position += particle.velocity * dtime;
             particle.rotation += particle.rotationSpeed * dtime;
+
+            float factorLerp = particle.lifeRemaining / particle.lifeTime;
+            float R = Utils::lerp(particle.colorBegin.R, particle.colorEnd.R, factorLerp);
+            float G = Utils::lerp(particle.colorBegin.G, particle.colorEnd.G, factorLerp);;
+            float B = Utils::lerp(particle.colorBegin.B, particle.colorEnd.B, factorLerp);;
+            float A = Utils::lerp(particle.colorBegin.A, particle.colorEnd.A, factorLerp);;
+            particle.colorCurrent = Color_A(R, G, B, A);
         }
     }
 }
@@ -64,6 +73,7 @@ void ParticloSystem::draw(const BaseCamera& cam)
             ScaleMat.scale(particle.sizeEnd + ((particle.lifeRemaining / particle.lifeTime) * (particle.sizeBegin - particle.sizeEnd)));
             ModelMat = TransMat * RotMat * ScaleMat;
             dynamic_cast<ParticleShader*>(pShader)->addMatrix(ModelMat, particleCount);
+            dynamic_cast<ParticleShader*>(pShader)->addColorToArray(particle.colorCurrent, particleCount);
             particleCount++;
         }
     }

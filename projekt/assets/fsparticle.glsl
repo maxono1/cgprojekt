@@ -2,9 +2,15 @@
 
 layout (location = 0) out vec4 FragColor;
 
+#define PARTICLE_COUNT 1000
+
+in flat int instanceID;
+
 uniform vec4 Color;
+uniform vec4 Colors[PARTICLE_COUNT];
 
 void main()
 {
-	FragColor = Color;
+	//FragColor = Color;
+    FragColor = Colors[instanceID];
 }

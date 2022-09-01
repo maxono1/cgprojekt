@@ -31,7 +31,7 @@ private:
 
 		Vector position;
 		Vector velocity;
-		Color_A colorBegin, colorEnd;
+		Color_A colorBegin, colorEnd, colorCurrent;
 		Vector rotation;
 		Vector rotationSpeed;
 

@@ -184,7 +184,7 @@ void Application::update(float dtime)
 	particleSystem->update(dtime);
 
 	//make camera follow the block
-	Cam.setPosition(Vector(playerPositionAfter.X - 2, playerPositionAfter.Y + 3, playerPositionAfter.Z - 10 ));
+	Cam.setPosition(Vector(playerPositionAfter.X - 1, playerPositionAfter.Y + 3, playerPositionAfter.Z - 10 ));
 	Cam.setTarget(playerPositionAfter);
     Cam.update();
 }
