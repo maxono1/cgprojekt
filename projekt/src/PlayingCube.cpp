@@ -1,7 +1,7 @@
 #include "PlayingCube.h"
 # define M_PI 3.14159265358979323846f
 
-PlayingCube::PlayingCube(const char* cubeFile)
+PlayingCube::PlayingCube(const char* cubeFile) : deathTimer(0.0f)
 {
 	
 	Model* model = new Model(cubeFile, false);

@@ -51,6 +51,9 @@ void Application::start()
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//vlt hier das mit dem bloom frame buffer hin
+
 }
 
 
@@ -64,125 +67,143 @@ void Application::update(float dtime)
 	std::cout << dtime << "dtime" << "\n";
 	handleKeyPresses();
 
-	//unrotate
-	Matrix previousRotation = player->getPreviousRotation(); //needed at the end, to continue rotation
-	Matrix invOfpreviousRotation = Matrix(previousRotation);
-	invOfpreviousRotation.invert();
+	if (player->getPlayerState() != PlayerStates::dead) {
+		//unrotate
+		Matrix previousRotation = player->getPreviousRotation(); //needed at the end, to continue rotation
+		Matrix invOfpreviousRotation = Matrix(previousRotation);
+		invOfpreviousRotation.invert();
 
-	Model* playerModel = player->getBlockModel();
-	playerModel->transform(playerModel->transform() * invOfpreviousRotation);
-	
-	if (isJumpPressed() && (player->getPlayerState() == PlayerStates::grounded || player->getPlayerState() == PlayerStates::continuousJump)) {
-		player->setCurrentVelocityY(player->getInitialJumpVelocity());
-	}
+		Model* playerModel = player->getBlockModel();
+		playerModel->transform(playerModel->transform() * invOfpreviousRotation);
 
-
-	//movement down and collision detect
-	Matrix movementY;
-	//movementY.translation(0, dtime * (-5), 0);
-	float completeVelocity = player->getCurrentVelocityY() * dtime + (player->getGravity() * dtime * dtime) / 2;
-	std::cout << completeVelocity << "completeVel" << "\n";
-	movementY.translation(0, completeVelocity ,0);
-	
-	if (completeVelocity <= 0.0f) {
-		Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
-		playerModel->transform(transformBeforeMoveDown * movementY);
-
-		//das hier nur machen wenn movement down ist
-		AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
-		bool collisionHappenedOnce = false;
-		for (int i{ 0 }; i < lvlObjects.size(); i++)
-		{
-			AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
-			bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
-			if (collision) {
-				player->getBlockModel()->transform(transformBeforeMoveDown);
-				collisionHappenedOnce = true;
-			}
+		if (isJumpPressed() && (player->getPlayerState() == PlayerStates::grounded || player->getPlayerState() == PlayerStates::continuousJump)) {
+			player->setCurrentVelocityY(player->getInitialJumpVelocity());
 		}
-		//setting the current velocity might be best if it happens here
-		if (collisionHappenedOnce) {
-			if (!isJumpPressed()) {
-				player->setPlayerState(PlayerStates::grounded);
+
+
+		//movement down and collision detect
+		Matrix movementY;
+		//movementY.translation(0, dtime * (-5), 0);
+		float completeVelocity = player->getCurrentVelocityY() * dtime + (player->getGravity() * dtime * dtime) / 2;
+		std::cout << completeVelocity << "completeVel" << "\n";
+		movementY.translation(0, completeVelocity, 0);
+
+		if (completeVelocity <= 0.0f) {
+			Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
+			playerModel->transform(transformBeforeMoveDown * movementY);
+
+			//das hier nur machen wenn movement down ist
+			AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+			bool collisionHappenedOnce = false;
+			for (int i{ 0 }; i < lvlObjects.size(); i++)
+			{
+				AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+				bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+				if (collision) {
+					player->getBlockModel()->transform(transformBeforeMoveDown);
+					collisionHappenedOnce = true;
+				}
+			}
+			//setting the current velocity might be best if it happens here
+			if (collisionHappenedOnce) {
+				if (!isJumpPressed()) {
+					player->setPlayerState(PlayerStates::grounded);
+				}
+				else {
+					player->setPlayerState(PlayerStates::continuousJump);
+					//this is to keep rotation when you hold jump while touching the ground
+				}
+				float newVelocity = -0.01f;
+				std::cout << newVelocity << "newVel" << "\n";
+				player->setCurrentVelocityY(newVelocity);
 			}
 			else {
-				player->setPlayerState(PlayerStates::continuousJump);
-				//this is to keep rotation when you hold jump while touching the ground
+				player->setPlayerState(PlayerStates::airborne);
+				player->applyGravityWhileFalling(dtime);
 			}
-			float newVelocity = -0.01f;
-			std::cout << newVelocity << "newVel" << "\n";
-			player->setCurrentVelocityY(newVelocity);
 		}
 		else {
+			Matrix transformBeforeMoveUp = playerModel->transform();
+			playerModel->transform(transformBeforeMoveUp * movementY);
+
+
+			AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+			for (int i{ 0 }; i < lvlObjects.size(); i++)
+			{
+				AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
+				bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
+				if (collision)
+				{
+					//player->respawn(); //respawn setted falling anyway
+					//player->setPlayerState(PlayerStates::dead);
+					killPlayer();
+				}
+			}
 			player->setPlayerState(PlayerStates::airborne);
 			player->applyGravityWhileFalling(dtime);
 		}
-	}
-	else {
-		Matrix transformBeforeMoveUp = playerModel->transform();
-		playerModel->transform(transformBeforeMoveUp * movementY);
 
 
-		AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
+
+
+		//sideways movement and collision:
+		Matrix movementSide;
+		movementSide.translation(dtime * player->horizontalSpeed, 0, 0);
+		playerModel->transform(playerModel->transform() * movementSide);
+		//update bounding box
+		AABB bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
+
 		for (int i{ 0 }; i < lvlObjects.size(); i++)
 		{
 			AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
 			bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
 			if (collision)
 			{
-				player->respawn(); //respawn setted falling anyway
+				//player->respawn();
+				killPlayer();
+
+
 			}
 		}
-		player->setPlayerState(PlayerStates::airborne);
-		player->applyGravityWhileFalling(dtime);
-	}
-	
-	
-	
 
-	//sideways movement and collision:
-	Matrix movementSide;
-	movementSide.translation(dtime * player->horizontalSpeed, 0, 0);
-	playerModel->transform(playerModel->transform() * movementSide);
-	//update bounding box
-	AABB bbOfPlayer = playerModel->boundingBox().transform(playerModel->transform());
-
-	for (int i{ 0 }; i < lvlObjects.size(); i++)
-	{
-		AABB bbOfObject = lvlObjects[i]->boundingBox().transform(lvlObjects[i]->transform());
-		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObject);
-		if (collision)
+		for (int i = 0; i < obstacles.size(); i++)
 		{
+			AABB bbOfObstacle = obstacles[i]->boundingBox().transform(obstacles[i]->transform());
+			bool collision = AABB::checkCollision(bbOfPlayer, bbOfObstacle);
+			if (collision) {
+				//player->respawn();
+				killPlayer();
+			}
+		}
+
+		rotatePlayerModel(dtime, previousRotation, playerModel);
+
+
+		Vector playerPositionAfter = playerModel->transform().translation();
+		if (player->getPlayerState() == PlayerStates::grounded) {
+			particlePropsTest = ParticleProps();
+			particlePropsTest.position = Vector(playerPositionAfter.X - 0.5f, playerPositionAfter.Y - 0.25f, playerPositionAfter.Z);
+			particlePropsTest.sizeBegin = 0.2f;
+			for (size_t i = 0; i < 1; i++)
+			{
+				particleSystem->emit(particlePropsTest);
+			}
+		}
+	}
+	else {
+		player->setDeathTimer(player->getDeathTimer() + dtime);
+		if (player->getDeathTimer() > 1.0f) {
+			player->setDeathTimer(0.0f);
 			player->respawn();
 		}
 	}
-	
-	for (int i = 0; i < obstacles.size(); i++)
-	{
-		AABB bbOfObstacle = obstacles[i]->boundingBox().transform(obstacles[i]->transform());
-		bool collision = AABB::checkCollision(bbOfPlayer, bbOfObstacle);
-		if (collision) {
-			player->respawn();
-		}
-	}
 
-	rotatePlayerModel(dtime, previousRotation, playerModel);
 	
-	
-	Vector playerPositionAfter = playerModel->transform().translation();
-	if (player->getPlayerState() == PlayerStates::grounded) {
-		particlePropsTest = ParticleProps();
-		particlePropsTest.position = Vector(playerPositionAfter.X - 0.5f, playerPositionAfter.Y - 0.25f, playerPositionAfter.Z);
-		particlePropsTest.sizeBegin = 0.2f;
-		for (size_t i = 0; i < 1; i++)
-		{
-			particleSystem->emit(particlePropsTest);
-		}
-	}
 	
 
 	particleSystem->update(dtime);
 
+	Vector playerPositionAfter = player->getBlockModel()->transform().translation();
 	//make camera follow the block
 	Cam.setPosition(Vector(playerPositionAfter.X - 1, playerPositionAfter.Y + 3, playerPositionAfter.Z - 10 ));
 	Cam.setTarget(playerPositionAfter);
@@ -202,6 +223,9 @@ void Application::draw()
     {
         (*it)->draw(Cam);
     }
+	if (player->getPlayerState() != PlayerStates::dead) {
+		player->getBlockModel()->draw(Cam);
+	}
 	ShaderLightMapper::instance().deactivate();
 	
     // 3. check once per frame for opengl errors
@@ -260,13 +284,14 @@ void Application::createGeometryTestScene()
 	translation.translation(1.0f, -5.5f, 0);
 	lvlObjects[3]->transform(translation);
 	
-	translation.translation(7.0f, -5.5f, 0);
-	lvlObjects[4]->transform(translation);
+	translation.translation(7.0f, -5.1f, 0); // hinter dem spike
+	scale.scale(Vector(1, 2, 1));
+	lvlObjects[4]->transform(translation * scale);
 
-	translation.translation(13.0f, -5.5f, 0);
-	lvlObjects[5]->transform(translation);
+	translation.translation(18.0f, -10.0f, 0);
+	lvlObjects[5]->transform(translation );
 
-	translation.translation(19.0f, -5.5f, 0);
+	translation.translation(16.0f, -3.5f, 0); //oberer weg
 	lvlObjects[6]->transform(translation);
 
 	translation.translation(25.0f, -5.5f, 0);
@@ -303,14 +328,27 @@ void Application::createGeometryTestScene()
 	}
 
 
-	pModel = new Model(ASSET_DIRECTORY "tripleSpikes.obj", false);
-	pModel->shader(new PhongShader(), true);
+	for (size_t i = 0; i < 8; i++)
+	{
+		pModel = new Model(ASSET_DIRECTORY "tripleSpikes.obj", false);
+		pModel->shader(phongShader, true);
+		obstacles.push_back(pModel);
+		Models.push_back(pModel);
+	}
+	
 	translation.translation(3.0f, -5.5f, 0);
 	scale.scale(1);
-	pModel->transform(translation * scale);
-	obstacles.push_back(pModel);
+	obstacles[0]->transform(translation * scale);
+
+	pModel = new Model(ASSET_DIRECTORY "deathplane.obj", false);
+	pModel->shader(phongShader, true);
+	translation.translation(0, -20, 0);
+	pModel->transform(translation);
+	obstacles.push_back(pModel); //dont need to put it in model for the collision to work
 	Models.push_back(pModel);
 
+
+	/*
 	for (int i{ 0 }; i < obstacles.size(); i++) 
 	{
 		LineBoxModel* obstacleHitbox = new LineBoxModel(obstacles[i]->boundingBox().Max, obstacles[i]->boundingBox().Min);
@@ -318,7 +356,7 @@ void Application::createGeometryTestScene()
 		obstacleHitbox->transform(obstacles[i]->transform());
 		//Models.push_back(obstacleHitbox);
 		obstacleHitboxVisuals.push_back(obstacleHitbox);
-	}
+	}*/
 
 	/*
 	AABB bbOfModel = pModel->boundingBox();// .transform(pModel->transform());
@@ -391,7 +429,7 @@ void Application::createGeometryTestScene()
 	}*/
 
 	player = new PlayingCube(ASSET_DIRECTORY "blockPlayer.obj");
-	Models.push_back(player->getBlockModel());
+	//Models.push_back(player->getBlockModel());
 
 	
 	playerHitboxVisual = new LineBoxModel(player->getBlockModel()->boundingBox().Max, player->getBlockModel()->boundingBox().Min);
@@ -402,6 +440,8 @@ void Application::createGeometryTestScene()
 	dragonCube = new LineBoxModel(pModel->boundingBox().Max, pModel->boundingBox().Min);
 	dragonCube->shader(pConstShader, true);
 	Models.push_back(dragonCube);*/
+
+
 
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);
@@ -641,6 +681,57 @@ Matrix Application::calcRotationSnapping(float cosValue, float sineValue)
 		rotation.rotationZ(AI_DEG_TO_RAD(0)); //für testzwecke
 	}
 	return rotation;
+}
+
+void Application::killPlayer()
+{
+	player->setPlayerState(PlayerStates::dead);
+	ParticleProps deathAnimParticles = ParticleProps();
+	deathAnimParticles.position = player->getBlockModel()->transform().translation();
+	deathAnimParticles.colorBegin = Color_A(1, 1.0f, 0, 1);
+	deathAnimParticles.colorEnd = Color_A(1, 0, 0, 0.2f);
+	deathAnimParticles.lifeTime = 0.7f;
+
+	float speed = 3;
+
+	for (size_t i = 0; i < 20; i++)
+	{
+		deathAnimParticles.velocity = Vector(0, speed, 0); //top
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(0, speed, speed); //top side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(0, speed, -speed); //top side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(0, 0, speed);  //side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(0, 0, -speed); //side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, speed, 0); //diag forward
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, speed, -speed); //diag fwd side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, speed, speed); //diag fwd side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, speed, 0); //diag back 
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, speed, -speed); //diag bside
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, speed, speed); //diag bside
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, 0, -speed); //back side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, 0, 0);//back
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(-speed, 0, speed);//back side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, 0, -speed); //front side
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, 0, 0);//front
+		particleSystem->emit(deathAnimParticles);
+		deathAnimParticles.velocity = Vector(speed, 0, speed);//front side
+		particleSystem->emit(deathAnimParticles);
+	}
+	
 }
 
 ////player->update(dtime);

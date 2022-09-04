@@ -49,6 +49,7 @@ private:
     void handleKeyPresses();
     void rotatePlayerModel(float dtime, Matrix previousRotation, Model* playerModel);
     Matrix calcRotationSnapping(float cosValue, float sineValue);
+    void killPlayer();
 
 protected:
     Camera Cam;

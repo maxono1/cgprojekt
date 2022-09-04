@@ -5,7 +5,7 @@
 #include <math.h>
 
 enum class PlayerStates {
-	airborne, grounded, continuousJump
+	airborne, grounded, continuousJump, dead
 };
 
 class PlayingCube
@@ -36,6 +36,9 @@ public:
 	float getGravity() { return gravity; };
 	float getInitialJumpVelocity() { return initialJumpVelocity; };
 	float getMaxFallSpeed() { return maxFallSpeed; };
+
+	float getDeathTimer() { return deathTimer; };
+	void setDeathTimer(float value) { this->deathTimer = value; };
 private:
 	void initJumpVariables();
 public:
@@ -60,5 +63,6 @@ private:
 
 	float currentVelocityY;
 	
+	float deathTimer;
 };
 

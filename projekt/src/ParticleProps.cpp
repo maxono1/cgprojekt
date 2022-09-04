@@ -9,7 +9,7 @@ ParticleProps::ParticleProps()
         rotationSpeed = Vector(2.0f*3.14f, 0, 0);
         colorBegin = Color_A(1, 1, 0, 1);
         colorEnd = Color_A(1, 0, 0, 0.6f);
-        sizeBegin = 0.5f;
+        sizeBegin = 0.3f;
         sizeEnd = 0.1f;
         sizeVariation = 0.1f;
         lifeTime = 1.0f;
