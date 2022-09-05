@@ -15,7 +15,7 @@
 static float randomFloat(float a, float b);
 
 //Quelle: https://www.youtube.com/watch?v=GK0jHlv3e3w&t=222s the cherno particle system
-
+//umbenannt wegen einem Bug in visual studio
 class ParticloSystem : public BaseModel
 {
 public:

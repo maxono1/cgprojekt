@@ -59,7 +59,8 @@ void ParticloSystem::update(float dtime)
     }
 }
 
-
+//Quelle: https://learnopengl.com/Advanced-OpenGL/Instancing
+//da partikel gleich sind, kann instancing verwendet werden
 void ParticloSystem::draw(const BaseCamera& cam)
 {
     BaseModel::draw(cam);
@@ -310,7 +311,7 @@ void ParticloSystem::createParticleModel()
     IB.end();
 }
 
-/** https://stackoverflow.com/questions/5289613/generate-random-float-between-two-floats **/
+//Quelle https://stackoverflow.com/questions/5289613/generate-random-float-between-two-floats
 float randomFloat(float a, float b) {
     float random = ((float)rand()) / (float)RAND_MAX;
     //std::cout << "random: " << random << '\n';

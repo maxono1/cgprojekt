@@ -82,12 +82,15 @@ void Application::update(float dtime)
 
 
 		//movement down and collision detect
+		// Quellen :
+		// https://www.youtube.com/watch?v=h2r3_KjChf4
+		// https://www.youtube.com/watch?v=hG9SzQxaCm8
 		Matrix movementY;
-		//movementY.translation(0, dtime * (-5), 0);
 		float completeVelocity = player->getCurrentVelocityY() * dtime + (player->getGravity() * dtime * dtime) / 2;
 		std::cout << completeVelocity << "completeVel" << "\n";
 		movementY.translation(0, completeVelocity, 0);
 
+		//falls player fällt
 		if (completeVelocity <= 0.0f) {
 			Matrix transformBeforeMoveDown = playerModel->transform(); //in case of collision, reset to this
 			playerModel->transform(transformBeforeMoveDown * movementY);
@@ -121,11 +124,10 @@ void Application::update(float dtime)
 				player->setPlayerState(PlayerStates::airborne);
 				player->applyGravityWhileFalling(dtime);
 			}
-		}
+		} //falls player sich nach oben bewegt
 		else {
 			Matrix transformBeforeMoveUp = playerModel->transform();
 			playerModel->transform(transformBeforeMoveUp * movementY);
-
 
 			AABB bbOfPlayer = playerModel->boundingBox().transform(player->getBlockModel()->transform());
 			for (int i{ 0 }; i < lvlObjects.size(); i++)
@@ -226,6 +228,7 @@ void Application::draw()
 	if (player->getPlayerState() != PlayerStates::dead) {
 		player->getBlockModel()->draw(Cam);
 	}
+	skyboxModel->draw(Cam);
 	ShaderLightMapper::instance().deactivate();
 	
     // 3. check once per frame for opengl errors
@@ -267,13 +270,15 @@ void Application::createGeometryTestScene()
 
 	phongShader = new PhongShader();
 
-	for (int i{ 0 }; i < 15; i++) {
+	for (int i{ 0 }; i < 30; i++) {
 		pModel = new Model(ASSET_DIRECTORY "woodenObje.obj", false);
-		pModel->shader(phongShader, false);
+		pModel->shader(phongShader, false); 
+		translation.translation(0, 1000, 0);
+		pModel->transform(translation);
 		lvlObjects.push_back(pModel);
 		Models.push_back(pModel);
 	}
-	//lvl objects [0] wird nich verwendet
+	//lvl objects [0] wird nicht verwendet
 
 	translation.translation(-8.0f, -4, 0);
 	lvlObjects[1]->transform(translation);
@@ -288,8 +293,8 @@ void Application::createGeometryTestScene()
 	scale.scale(Vector(1, 2, 1));
 	lvlObjects[4]->transform(translation * scale);
 
-	translation.translation(18.0f, -10.0f, 0);
-	lvlObjects[5]->transform(translation );
+	//translation.translation(18.0f, -10.0f, 0);
+	//lvlObjects[5]->transform(translation );
 
 	translation.translation(16.0f, -3.5f, 0); //oberer weg
 	lvlObjects[6]->transform(translation);
@@ -297,24 +302,39 @@ void Application::createGeometryTestScene()
 	translation.translation(25.0f, -5.5f, 0);
 	lvlObjects[7]->transform(translation);
 
-	translation.translation(31.0f, -5.5f, 0);
-	lvlObjects[8]->transform(translation);
+	//translation.translation(31.0f, -5.5f, 0);
+	//lvlObjects[8]->transform(translation);
 
 	translation.translation(34.0f, -5.5f, 0);
 	rotation.rotationX(AI_DEG_TO_RAD(90));
 	lvlObjects[9]->transform(translation * rotation);
 
-	translation.translation(37.0f, -5.5f, 0);
-	lvlObjects[10]->transform(translation);
 
 	translation.translation(40.0f, -5.5f, 0);
 	rotation.rotationZ(AI_DEG_TO_RAD(90));
 	lvlObjects[11]->transform(translation * rotation);
 
-	translation.translation(43.0f, -5.5f, 0);
-	lvlObjects[12]->transform(translation);
+	translation.translation(43.0f, -3.5f, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	lvlObjects[12]->transform(translation * rotation);
 
+	translation.translation(46.0f, -1.5f, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	lvlObjects[0]->transform(translation * rotation);
 
+	translation.translation(49.0f, 0.4f, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	lvlObjects[5]->transform(translation * rotation);
+
+	translation.translation(52.0f, 1.5f, 0);
+	rotation.rotationZ(AI_DEG_TO_RAD(90));
+	lvlObjects[10]->transform(translation * rotation);
+
+	translation.translation(55, 4.0f, 0);
+	lvlObjects[8]->transform(translation);
+
+	translation.translation(61, 4.0f, 0);
+	lvlObjects[13]->transform(translation);
 	
 
 	for (int i{ 0 }; i < lvlObjects.size(); i++) 
@@ -332,6 +352,8 @@ void Application::createGeometryTestScene()
 	{
 		pModel = new Model(ASSET_DIRECTORY "tripleSpikes.obj", false);
 		pModel->shader(phongShader, true);
+		translation.translation(0, 1000, 0);
+		pModel->transform(translation);
 		obstacles.push_back(pModel);
 		Models.push_back(pModel);
 	}
@@ -339,6 +361,10 @@ void Application::createGeometryTestScene()
 	translation.translation(3.0f, -5.5f, 0);
 	scale.scale(1);
 	obstacles[0]->transform(translation * scale);
+
+	translation.translation(63, 4.0f, 0);
+	scale.scale(0.8f);
+	obstacles[1]->transform(translation);
 
 	pModel = new Model(ASSET_DIRECTORY "deathplane.obj", false);
 	pModel->shader(phongShader, true);
@@ -436,17 +462,18 @@ void Application::createGeometryTestScene()
 	playerHitboxVisual->shader(pConstShader, true);
 	//Models.push_back(playerHitboxVisual);
 
+
+
 	/*
-	dragonCube = new LineBoxModel(pModel->boundingBox().Max, pModel->boundingBox().Min);
-	dragonCube->shader(pConstShader, true);
-	Models.push_back(dragonCube);*/
-
-
-
 	pModel = new Model(ASSET_DIRECTORY "skybox_bright.obj", false);
 	pModel->shader(new PhongShader(), true);
 	pModel->shadowCaster(false);
 	Models.push_back(pModel);
+	*/ 
+	skyboxModel = new SkyboxModel(ASSET_DIRECTORY "skybox_bright.obj", false);
+	skyboxModel->shader(new PhongShader(), true);
+	skyboxModel->shadowCaster(false);
+	//skyboxModel->createLerpedTextures(Texture(ASSET_DIRECTORY "skyBoxNightSky_resize.png"));
 
 
 	// directional lights
@@ -455,7 +482,6 @@ void Application::createGeometryTestScene()
 	dl->color(Color(1, 1, 1));
 	dl->castShadows(true);
 	ShaderLightMapper::instance().addLight(dl);
-
 
 
 	particlePropsTest = ParticleProps();
@@ -625,6 +651,54 @@ void Application::createShadowTestScene()
 	sl->outerRadius(13);
 	sl->castShadows(true);
 	ShaderLightMapper::instance().addLight(sl);
+}
+
+void Application::initBloomFramebuffer()
+{
+	//Quelle:https://learnopengl.com/Advanced-Lighting/Bloom
+	// set up floating point framebuffer to render scene to
+	/*
+	unsigned int hdrFBO;
+	glGenFramebuffers(1, &hdrFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+	unsigned int colorBuffers[2];
+	glGenTextures(2, colorBuffers);
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// attach texture to framebuffer
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0
+		);
+	}
+	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
+
+
+	bool horizontal = true, first_iteration = true;
+	int amount = 10;
+	shaderBlur.use();
+	for (unsigned int i = 0; i < amount; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+		shaderBlur.setInt("horizontal", horizontal);
+		glBindTexture(
+			GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongBuffers[!horizontal]
+		);
+		RenderQuad();
+		horizontal = !horizontal;
+		if (first_iteration)
+			first_iteration = false;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	*/
 }
 
 void Application::handleKeyPresses()

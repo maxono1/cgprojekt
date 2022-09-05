@@ -32,7 +32,7 @@ public:
     const AABB& boundingBox() const { return BoundingBox; }
     void setBoundingBox(AABB box);
 
-protected: // protected types
+public: // protected types
     struct Mesh
     {
         Mesh() {}

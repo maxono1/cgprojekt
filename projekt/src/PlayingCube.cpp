@@ -12,7 +12,6 @@ PlayingCube::PlayingCube(const char* cubeFile) : deathTimer(0.0f)
 	Matrix translation, scale, rotationZTest;
 	scale.scale(0.4f);
 	translation.translation(-16, 6, 0);
-	//rotationZTest.rotationZ(AI_DEG_TO_RAD(-45));
 	startPosition = translation * scale;
 	model->transform(startPosition);
 
@@ -27,9 +26,7 @@ PlayingCube::PlayingCube(const char* cubeFile) : deathTimer(0.0f)
 
 PlayingCube::~PlayingCube()
 {
-	//TODO: delete things that i created with new
 	// blockModel is deleted automaticallly
-	//delete blockModel;
 }
 
 void PlayingCube::jump()
@@ -60,6 +57,9 @@ void PlayingCube::respawn()
 	setPreviousRotation(resetRotation.rotationZ(0)); //könnte auch identity nehmen?
 }
 
+// Quellen :
+// https://www.youtube.com/watch?v=h2r3_KjChf4
+// https://www.youtube.com/watch?v=hG9SzQxaCm8
 void PlayingCube::applyGravityWhileFalling(float dtime)
 {
 	float newVelocity = this->getCurrentVelocityY() + this->getGravity() * dtime;
@@ -104,6 +104,9 @@ Matrix PlayingCube::getPreviousRotation()
 	return this->previousRotation;
 }
 
+// Quellen :
+// https://www.youtube.com/watch?v=h2r3_KjChf4
+// https://www.youtube.com/watch?v=hG9SzQxaCm8
 void PlayingCube::initJumpVariables()
 {
 	maxJumpHeight = 9.1f;

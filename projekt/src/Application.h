@@ -24,6 +24,7 @@
 #include "ShadowMapGenerator.h"
 #include "PlayingCube.h"
 #include "LineBoxModel.h"
+#include "SkyboxModel.h"
 
 
 //constexpr auto epsilon = 1e-6;
@@ -45,6 +46,7 @@ protected:
 	void createScene();
 	void createNormalTestScene();
 	void createShadowTestScene();
+    void initBloomFramebuffer();
 private:
     void handleKeyPresses();
     void rotatePlayerModel(float dtime, Matrix previousRotation, Model* playerModel);
@@ -56,6 +58,10 @@ protected:
     ModelList Models;
     ModelList lvlList;
     //std::vector<AABB> aabbList;
+
+    SkyboxModel* skyboxModel;
+    std::vector<Model::Material*> skyboxMaterials;
+
     std::vector<BaseModel*> obstacles; //everything that kills you no matter how you touch it
     std::vector<LineBoxModel*> obstacleHitboxVisuals;
 
