@@ -297,6 +297,8 @@ void Application::createGeometryTestScene()
 	translation.translation(-8.0f, -4, 0);
 	lvlObjects[1]->transform(translation);
 
+	
+
 	translation.translation(-5.0f, -5.5f, 0);
 	lvlObjects[2]->transform(translation);
 
@@ -309,6 +311,9 @@ void Application::createGeometryTestScene()
 
 	//translation.translation(18.0f, -10.0f, 0);
 	//lvlObjects[5]->transform(translation );
+
+	translation.translation(14.0f, 1, 0);
+	lvlObjects[14]->transform(translation);
 
 	translation.translation(16.0f, -3.5f, 0); //oberer weg
 	lvlObjects[6]->transform(translation);
@@ -349,6 +354,9 @@ void Application::createGeometryTestScene()
 
 	translation.translation(61, 4.0f, 0);
 	lvlObjects[13]->transform(translation);
+
+
+
 
 	translation.translation(75, 1.0f, 0);
 	scale.scale(3, 1, 3);
@@ -733,7 +741,7 @@ void Application::handleKeyPresses()
 
 void Application::rotatePlayerModel(float dtime, Matrix previousRotation, Model* playerModel)
 {
-	if (player->getPlayerState() == PlayerStates::airborne || player->getPlayerState() == PlayerStates::continuousJump) {
+	if (player->getPlayerState() == PlayerStates::airborne  || player->getPlayerState() == PlayerStates::continuousJump) {
 		//rotate the block furhter!
 		Matrix rotation;
 		rotation.rotationZ(-dtime * AI_DEG_TO_RAD(180));
