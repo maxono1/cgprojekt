@@ -364,7 +364,7 @@ void Application::createGeometryTestScene()
 	finishLine->shader(phongShader, false);
 	finishLine->transform(translation * scale);
 	
-
+	/*
 	for (int i{ 0 }; i < lvlObjects.size(); i++) 
 	{
 		LineBoxModel* lvlHitbox = new LineBoxModel(lvlObjects[i]->boundingBox().Max, lvlObjects[i]->boundingBox().Min);
@@ -373,7 +373,7 @@ void Application::createGeometryTestScene()
 		lvlHitbox->transform(lvlObjects[i]->transform());
 		//Models.push_back(lvlHitbox);
 		lvlHitboxVisuals.push_back(lvlHitbox);
-	}
+	}*/
 
 
 	for (size_t i = 0; i < 8; i++)
@@ -408,7 +408,7 @@ void Application::createGeometryTestScene()
 		LineBoxModel* obstacleHitbox = new LineBoxModel(obstacles[i]->boundingBox().Max, obstacles[i]->boundingBox().Min);
 		obstacleHitbox->shader(pConstShader, true);
 		obstacleHitbox->transform(obstacles[i]->transform());
-		//Models.push_back(obstacleHitbox);
+		Models.push_back(obstacleHitbox);
 		obstacleHitboxVisuals.push_back(obstacleHitbox);
 	}*/
 
